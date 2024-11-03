@@ -1,4 +1,4 @@
-package com.serverchat;
+package com.serverchat.types;
 
 import java.util.ArrayList;
 
@@ -36,6 +36,15 @@ public class Group implements ChatInterface{
         ArrayList<Integer> ans = new ArrayList<>();
         for(GroupUser i : members){
             ans.add(i.getUser().getId());
+        }
+        return ans;
+    }
+
+    @Override
+    public String chatToString() {
+        String ans = this.groupName + "\n";
+        for(String i : this.messages){
+            ans += i;
         }
         return ans;
     }

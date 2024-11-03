@@ -1,4 +1,4 @@
-package com.serverchat;
+package com.serverchat.types;
 
 import java.util.ArrayList;
 

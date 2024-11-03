@@ -2,9 +2,12 @@ package com.serverchat;
 
 import java.util.ArrayList;
 
+import com.serverchat.types.ChatInterface;
+import com.serverchat.types.User;
+
 public class Datas {
-    private ArrayList<User> allUsers;
-    private ArrayList<ChatInterface> chatDatas;
+    public ArrayList<User> allUsers;
+    public ArrayList<ChatInterface> chatDatas;
     
     public Datas() {
         allUsers = new ArrayList<>();
@@ -23,6 +26,14 @@ public class Datas {
             if(userName.equals(i.getUsername()) && password.equals(i.getPassword())){
                 return i;
             }
+        }
+        return null;
+    }
+
+    //return a user by his id
+    public User getUserById(int id){
+        for(User u : allUsers){
+            if(u.getId() == id) return u;
         }
         return null;
     }

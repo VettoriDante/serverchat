@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import com.google.gson.*;
 import com.serverchat.protocol.CommandType;
 import com.serverchat.protocol.JsonUser;
+import com.serverchat.types.Chat;
+import com.serverchat.types.User;
 
 import javax.swing.GroupLayout.Group;
 
@@ -36,10 +38,11 @@ public class ClientHandler extends Thread {
             CommandType c = CommandType.valueOf(typeOfUser);//cast like operation c = command used
             String inputs = null;
 
+            inputs = in.readLine();//get data
+
             switch (c) {
                 case NEW_USER:
                     //for new user wait to be sent all user info 
-                        inputs = in.readLine();//get all newUser data
                         User newUser = new Gson().fromJson(inputs, User.class);//transform datas recived into a User
                         if(newUser == null){
                             out.writeBytes(CommandType.ERR_WRONG_DATA.toString() + "\n");//send error
@@ -51,15 +54,25 @@ public class ClientHandler extends Thread {
                         }        
                     break;
                 case OLD_USER:
-                        inputs = in.readLine();
                         JsonUser searchFor = new Gson().fromJson(inputs, JsonUser.class); 
-                        datas.getUser(searchFor.getUsername(), searchFor.getPassword());
+                        User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
+                        //check if the user was successfully found
+                        if(tmp == null){
+                            out.writeBytes(CommandType.ERR_NOT_FOUND.toString() + "\n");
+                        }
+                        else{
+                            out.writeBytes(CommandType.OK.toString() + "\n"); //send the ok 
+                            user = tmp;
+                        }
                     break;
                 default:
+                        out.writeBytes(CommandType.ERR_WRONG_DATA + "\n");
                     break;
             }
-            String userInfo = in.readLine();//get the user
-            JsonUser userData = new Gson().fromJson(userInfo, JsonUser.class);
+
+            //Once you know who the user is, the server get ready to send him
+            //all of his chats
+            
 
 
         } catch (IOException e) {
