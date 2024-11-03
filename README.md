@@ -4,7 +4,8 @@
 
 | Command Code     | Description                                 |
 |------------------|---------------------------------------------|
-| `USR_INIT`       | Initialize user session (NEW or OLD)        |
+| `NEW_USER`       | Register new user and initialize user session |
+| `OLD_USER`       | Initialize user session                     |
 | `REQ_CHATS`      | Request information about user chats (userId) |
 | `DEL_USER`       | Request to delete user information          |
 | `MENU_BACK`      | Return to the main menu                     |
@@ -15,6 +16,7 @@
 | `VIEW_ALL_USERS` | View all users in the system                |
 | `VIEW_ALL_GROUPS`| View all groups in the system               |
 | `EXIT`           | Exit from the chat app                      |
+| `OK`             | The previous command was executed successfully |
 
 ## Error Messages
 
@@ -25,6 +27,8 @@
 | `ERR_CHAT_EXISTS`| Private chat already exists                 |
 | `ERR_USER_EXISTS`| Username already in use                     |
 | `ERR_DISCONNECT` | Client has disconnected                     |
+| `ERR_WRONG_DATA` | The data entered is incorrect               |
+
 
 ## Chat Management
 

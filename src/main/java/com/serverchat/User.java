@@ -13,14 +13,24 @@ public class User {
 
     
 
-    //getters
-
+    //constructor
     public User(int id, String username, String password, ArrayList<Chat> chats, ArrayList<Group> groups) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.chats = chats;
         this.groups = groups;
+    }
+    
+    //getters
+    public String getUsername() {
+        return username;
+    }
+
+
+
+    public String getPassword() {
+        return password;
     }
 
 
