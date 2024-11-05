@@ -3,10 +3,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import com.serverchat.types.Group;
-import com.serverchat.types.User;
-
-
 public class Main {
     public static void main(String[] args) throws IOException {
         //Server socket creation

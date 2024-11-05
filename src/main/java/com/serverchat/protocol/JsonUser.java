@@ -1,5 +1,8 @@
 package com.serverchat.protocol;
 
+/* Used in the authentication phase to 
+ * recognise a user without all his info
+ */
 public class JsonUser {
     private String username;
     private String password;

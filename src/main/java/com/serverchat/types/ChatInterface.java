@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import com.serverchat.protocol.Message;
 
+/*this interface allow the data obj to have on the same 
+ * ArrayList every chat, to then provide all needed info
+*/
 public interface ChatInterface {
     public ArrayList<Integer> getUsersId();
     public int getChatId();

@@ -54,6 +54,7 @@ public class Datas {
         chatsData.add(toAdd);
     }
 
+    //when a user try to create a username if it's already used return true
     public boolean isExitingName(String name){
         for(User i : allUsers){
             if(i.getUsername().equals(name)) return true;

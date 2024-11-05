@@ -2,12 +2,16 @@ package com.serverchat.protocol;
 
 import java.util.ArrayList;
 
-public class ChatToSend {
+/* in the authentication phase this 
+ * class give the client only some info about 
+ * every chat
+*/ 
+public class JsonChat {
     private int id;
     private String chatName;
     private ArrayList<Message> messages;
 
-    public ChatToSend(int id, String chatName, ArrayList<Message> messages) {
+    public JsonChat(int id, String chatName, ArrayList<Message> messages) {
         this.id = id;
         this.chatName = chatName;
         this.messages = messages;
