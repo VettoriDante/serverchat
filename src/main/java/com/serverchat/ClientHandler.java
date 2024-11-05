@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.google.gson.*;
-import com.serverchat.protocol.ChatToSend;
+import com.serverchat.protocol.JsonChat;
 import com.serverchat.protocol.CommandType;
 import com.serverchat.protocol.JsonUser;
 import com.serverchat.types.Chat;
@@ -39,6 +39,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
+        System.out.println("new client");
         //try to use the socket
         try {
            
@@ -46,7 +47,7 @@ public class ClientHandler extends Thread {
             //read user info to establish connection
             boolean error = true;
             do{
-              error =  Authentication();
+                error = Authentication();
             }while(error);
 
             //Once you know who the user is, the server get ready to send him
@@ -65,9 +66,9 @@ public class ClientHandler extends Thread {
     
     //return an array the Gson of ChatToSend and require an array of ChatInterface
     private String getJSONToSend(ArrayList<ChatInterface> chats){
-        ArrayList<ChatToSend> toJson = new ArrayList<>();
+        ArrayList<JsonChat> toJson = new ArrayList<>();
         for(ChatInterface i : chats){
-            toJson.add(new ChatToSend(i.getChatId(), i.getChatName(), i.getAllMessages()));
+            toJson.add(new JsonChat(i.getChatId(), i.getChatName(), i.getAllMessages()));
         }
 
         return new Gson().toJson(toJson);
