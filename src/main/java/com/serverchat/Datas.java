@@ -53,4 +53,11 @@ public class Datas {
     public void addChatGroup(ChatInterface toAdd){
         chatsData.add(toAdd);
     }
+
+    public boolean isExitingName(String name){
+        for(User i : allUsers){
+            if(i.getUsername().equals(name)) return true;
+        }
+        return false;
+    }
 }

@@ -36,42 +36,48 @@ public class ClientHandler extends Thread {
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
             //read user info to establish connection
-            String typeOfUser = in.readLine();//get the old/new user
-            CommandType c = CommandType.valueOf(typeOfUser);//cast like operation c = command used
-            String inputs = null;
-
-            inputs = in.readLine();//get data
-
-            switch (c) {
-                case NEW_USER:
-                    //for new user wait to be sent all user info 
-                        JsonUser newUserJ = new Gson().fromJson(inputs, JsonUser.class);//transform datas recived into a User
-                        if(newUserJ == null){
-                            out.writeBytes(CommandType.ERR_WRONG_DATA + "\n");//send error
-                        }
-                        else{
-                            User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
-                            datas.newUser(newUser);//add the new user to the general array of datas 
-                            user = newUser; // set this.user
-                            out.writeBytes(CommandType.OK.toString() + "\n"); //send the ok 
-                        }        
-                    break;
-                case OLD_USER:
-                        JsonUser searchFor = new Gson().fromJson(inputs, JsonUser.class); 
-                        User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
-                        //check if the user was successfully found
-                        if(tmp == null){
-                            out.writeBytes(CommandType.ERR_NOT_FOUND + "\n");
-                        }
-                        else{
-                            out.writeBytes(CommandType.OK.toString() + "\n"); //send the ok 
-                            user = tmp;
-                        }
-                    break;
-                default:
-                        out.writeBytes(CommandType.ERR_WRONG_DATA + "\n");
-                    break;
-            }
+            boolean error = true;
+            do{
+                String typeOfUser = in.readLine();//get the old/new user
+                CommandType c = CommandType.valueOf(typeOfUser);//cast like operation c = command used
+                String inputs = null;
+    
+                inputs = in.readLine();//get data
+    
+                switch (c) {
+                    case NEW_USER:
+                        //for new user wait to be sent all user info 
+                            JsonUser newUserJ = new Gson().fromJson(inputs, JsonUser.class);//transform datas recived into a User
+                            if(newUserJ == null){
+                                out.writeBytes(CommandType.ERR_WRONG_DATA + "\n");//send error
+                                error = true;
+                            }
+                            else{
+                                User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
+                                datas.newUser(newUser);//add the new user to the general array of datas 
+                                user = newUser; // set this.user
+                                out.writeBytes(CommandType.OK.toString() + "\n"); //send the ok 
+                            }        
+                        break;
+                    case OLD_USER:
+                            JsonUser searchFor = new Gson().fromJson(inputs, JsonUser.class); 
+                            User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
+                            //check if the user was successfully found
+                            if(tmp == null){
+                                out.writeBytes(CommandType.ERR_NOT_FOUND + "\n");
+                                error = true;
+                            }
+                            else{
+                                out.writeBytes(CommandType.OK.toString() + "\n"); //send the ok 
+                                user = tmp;
+                            }
+                        break;
+                    default:
+                            out.writeBytes(CommandType.ERR_WRONG_DATA + "\n");
+                            error = true;
+                        break;
+                }
+            }while(error);
 
             //Once you know who the user is, the server get ready to send him
             //all of his chats
