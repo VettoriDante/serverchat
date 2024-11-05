@@ -98,8 +98,8 @@ public class ClientHandler extends Thread {
                     User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
                     datas.newUser(newUser);// add the new user to the general array of datas
                     user = newUser; // set this.user
-                   WriteBytes(CommandType.OK.toString()); // send the ok
-                    
+                    WriteBytes(CommandType.OK.toString()); // send the ok
+                    System.out.println("new user has been created username: " + user.getUsername());
                 }
                 break;
             case OLD_USER:
@@ -112,6 +112,7 @@ public class ClientHandler extends Thread {
                 } else {
                    WriteBytes(CommandType.OK.toString());
                     user = tmp;
+                    System.out.println(user.getUsername() + " has connected again :)");
                 }
                 break;
             default:
