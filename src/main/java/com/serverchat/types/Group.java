@@ -2,6 +2,8 @@ package com.serverchat.types;
 
 import java.util.ArrayList;
 
+import com.serverchat.protocol.Message;
+
 public class Group implements ChatInterface{
     //Intenal class used to give each user a "role"
     private class GroupUser{
@@ -19,10 +21,19 @@ public class Group implements ChatInterface{
         }
     }
     //basic var
+    private static int nextId = 0;
     private int id;
     private String groupName;
     private ArrayList<GroupUser> members;
-    private ArrayList<String> messages;
+    private ArrayList<Message> messages;
+
+    
+    public Group(String name,User firstUser) {
+        this.id = nextId++;
+        this.members = new ArrayList<>();
+        this.groupName = name;
+        members.add(new GroupUser(true, firstUser));
+    }
 
     //return the chat id
     @Override
@@ -41,11 +52,12 @@ public class Group implements ChatInterface{
     }
 
     @Override
-    public String chatToString() {
-        String ans = this.groupName + "\n";
-        for(String i : this.messages){
-            ans += i;
-        }
-        return ans;
+    public String getChatName() {
+        return this.getChatName();
+    }
+
+    @Override
+    public ArrayList<Message> getAllMessages() {
+        return this.messages;
     }
 }
