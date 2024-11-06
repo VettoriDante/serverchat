@@ -47,18 +47,46 @@ public class ClientHandler extends Thread {
             //read user info to establish connection
             boolean error = true;
             do{
+                /* the authentication method
+                 * return true whenever a error
+                 * is found during the auth process*/
                 error = Authentication();
             }while(error);
 
             //Once you know who the user is, the server get ready to send him
             //all of his chats
             ArrayList<ChatInterface> chats = datas.getChatsById(this.user.getId());    
-            out.writeBytes( this.getJSONToSend(chats));
+            WriteBytes(this.getJSONToSend(chats));  
 
+            //here the thread add himself to datas (connected)
+            datas.addConnectedClient(user.getId(), this);
+
+            boolean connectionUP = true;
+            String inCommand = null;
+            CommandType command = null;
+            do{
+                //read and cast the new command
+                inCommand = in.readLine();
+                command = CommandType.valueOf(inCommand); //cast like operation
+
+                switch (command) {
+                    case NEW_CHAT:
+
+                        break;
+                    case SEND_MSG:
+                        
+                        break;
+                    default:
+                        WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                        break;
+                }
+                //here will go every operation
+            }while(connectionUP);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     // method for send a string , with before the implementation of "\n"
     private void WriteBytes(String stringtosout) throws IOException{ 
         out.writeBytes(stringtosout + "\n");
@@ -107,7 +135,12 @@ public class ClientHandler extends Thread {
                 User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
                 // check if the user was successfully found
                 if (tmp == null) {
-                    WriteBytes(CommandType.ERR_NOT_FOUND.toString() );
+                    if(datas.isExitingName(searchFor.getUsername())){
+                        WriteBytes(CommandType.ERR_NOT_FOUND.toString());
+                    }
+                    else{
+                        WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                    }
                     error = true;
                 } else {
                    WriteBytes(CommandType.OK.toString());
@@ -122,4 +155,8 @@ public class ClientHandler extends Thread {
         }
         return error; // return error
     }
+
+    //function to send data in every moment it will be used 
+    // by 
+    
 }

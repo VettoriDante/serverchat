@@ -14,6 +14,8 @@ public enum CommandType {
     UPD_NAME("Change username"),
     VIEW_ALL_USERS("View all users in the system"),
     VIEW_ALL_GROUPS("View all groups in the system"),
+    LOGOUT("Logout from the current account"),
+    EXIT("Exit from the app and close the connection"),
     OK("The previous command was executed successfully"),
 
 
@@ -24,7 +26,7 @@ public enum CommandType {
     ADD_ADMIN("Add a new admin to a group"),
     RM_ADMIN("Remove admin privileges from a user"),
     UPD_GROUP_NAME("Change the name of a group"),
-    CREATE_GROUP("Create a new group"),
+    NEW_GROUP("Create a new group"),
     VIEW_GROUP_USERS("View users in a specific group"),
 
     //Errors management

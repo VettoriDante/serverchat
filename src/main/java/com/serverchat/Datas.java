@@ -6,17 +6,46 @@ import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
 
 public class Datas {
+    private class UserClient {
+        private int usedID;
+        private ClientHandler client;
+        
+        public UserClient(int usedID, ClientHandler client) {
+            this.usedID = usedID;
+            this.client = client;
+        }
+
+        public int getUsedID() {
+            return usedID;
+        }
+
+        public void setUsedID(int usedID) {
+            this.usedID = usedID;
+        }
+
+        public ClientHandler getClient() {
+            return client;
+        }
+
+        public void setClient(ClientHandler client) {
+            this.client = client;
+        }
+
+        
+    }
     public ArrayList<User> allUsers;
     public ArrayList<ChatInterface> chatsData;
+    public ArrayList<UserClient> connectedUsers;
     
     public Datas() {
         allUsers = new ArrayList<>();
         chatsData = new ArrayList<>();
+        connectedUsers = new ArrayList<>();
     }
     
     //TODO: check datas
     //add a new user got Created in ClientHandler
-    public void newUser(User newUser){
+    public synchronized void newUser(User newUser){
         allUsers.add(newUser);
     }
 
@@ -50,7 +79,7 @@ public class Datas {
     }
 
     //add di chat e gruppi
-    public void addChatGroup(ChatInterface toAdd){
+    public synchronized void addChatGroup(ChatInterface toAdd){
         chatsData.add(toAdd);
     }
 
@@ -60,5 +89,9 @@ public class Datas {
             if(i.getUsername().equals(name)) return true;
         }
         return false;
+    }
+
+    public void addConnectedClient(int userID, ClientHandler client){
+        connectedUsers.add(new UserClient(userID, client));
     }
 }
