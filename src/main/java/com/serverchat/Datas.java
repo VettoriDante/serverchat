@@ -40,7 +40,8 @@ public class Datas {
     public Datas() {
         allUsers = new ArrayList<>();
         chatsData = new ArrayList<>();
-        connectedUsers = new ArrayList<>();
+        connectedUsers = new ArrayList<>();//here we find userID/clientHandler, to know who must be sent new messages
+        //theorically this should also allow the server to have more clients for the same user
     }
     
     //TODO: check datas
@@ -91,6 +92,7 @@ public class Datas {
         return false;
     }
 
+    // add an obj to connectedUser
     public void addConnectedClient(int userID, ClientHandler client){
         connectedUsers.add(new UserClient(userID, client));
     }

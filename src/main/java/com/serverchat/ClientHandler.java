@@ -20,7 +20,7 @@ public class ClientHandler extends Thread {
     private User user;
     private ArrayList<Chat> userChats;
     private ArrayList<Group> userGroups;
-    private BufferedReader in ;
+    private BufferedReader in;
     private DataOutputStream out;
     private Socket socket;
     private Datas datas;
@@ -40,75 +40,61 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         System.out.println("new client");
-        //try to use the socket
+        // try to use the socket
         try {
-           
 
-            //read user info to establish connection
+            // read user info to establish connection
             boolean error = true;
-            do{
-                /* the authentication method
+            do {
+                /*
+                 * the authentication method
                  * return true whenever a error
-                 * is found during the auth process*/
+                 * is found during the auth process
+                 */
                 error = Authentication();
-            }while(error);
+            } while (error);
 
-            //Once you know who the user is, the server get ready to send him
-            //all of his chats
-            ArrayList<ChatInterface> chats = datas.getChatsById(this.user.getId());    
-            WriteBytes(this.getJSONToSend(chats));  
+            // Once you know who the user is, the server get ready to send him
+            // all of his chats
+            ArrayList<ChatInterface> chats = datas.getChatsById(this.user.getId());
+            WriteBytes(this.getJSONToSend(chats));
 
-            //here the thread add himself to datas (connected)
+            // here the thread add himself to datas (connected)
             datas.addConnectedClient(user.getId(), this);
 
             boolean connectionUP = true;
             String inCommand = null;
             CommandType command = null;
-            do{
-                //read and cast the new command
+            do {
+                // read and cast the new command
                 inCommand = in.readLine();
-                command = CommandType.valueOf(inCommand); //cast like operation
+                command = CommandType.valueOf(inCommand); // cast like operation
 
                 switch (command) {
                     case NEW_CHAT:
 
                         break;
                     case SEND_MSG:
-                        
+
                         break;
                     default:
                         WriteBytes(CommandType.ERR_WRONG_DATA.toString());
                         break;
                 }
-                //here will go every operation
-            }while(connectionUP);
+                // here will go every operation
+            } while (connectionUP);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // method for send a string , with before the implementation of "\n"
-    private void WriteBytes(String stringtosout) throws IOException{ 
-        out.writeBytes(stringtosout + "\n");
-    }
-    
-    //return an array the Gson of ChatToSend and require an array of ChatInterface
-    private String getJSONToSend(ArrayList<ChatInterface> chats){
-        ArrayList<JsonChat> toJson = new ArrayList<>();
-        for(ChatInterface i : chats){
-            toJson.add(new JsonChat(i.getChatId(), i.getChatName(), i.getAllMessages()));
-        }
-
-        return new Gson().toJson(toJson);
-    }
-
-    // the method do de authentication and return a boolean error 
-    private Boolean Authentication() throws IOException  {
+    // the method do de authentication and return a boolean error
+    private Boolean Authentication() throws IOException {
 
         String typeOfUser = in.readLine();// get the old/new user
         CommandType c = CommandType.valueOf(typeOfUser);// cast like operation c = command used
         String inputs = null;
-        Boolean error = false ;
+        Boolean error = false;
 
         inputs = in.readLine();// get data
 
@@ -120,7 +106,7 @@ public class ClientHandler extends Thread {
                     WriteBytes(CommandType.ERR_WRONG_DATA.toString());
                     error = true;
                 } else {
-                    if(datas.isExitingName(newUserJ.getUsername())){
+                    if (datas.isExitingName(newUserJ.getUsername())) {
                         WriteBytes(CommandType.ERR_USER_EXISTS.toString());
                     }
                     User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
@@ -135,15 +121,14 @@ public class ClientHandler extends Thread {
                 User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
                 // check if the user was successfully found
                 if (tmp == null) {
-                    if(datas.isExitingName(searchFor.getUsername())){
+                    if (datas.isExitingName(searchFor.getUsername())) {
                         WriteBytes(CommandType.ERR_NOT_FOUND.toString());
-                    }
-                    else{
+                    } else {
                         WriteBytes(CommandType.ERR_WRONG_DATA.toString());
                     }
                     error = true;
                 } else {
-                   WriteBytes(CommandType.OK.toString());
+                    WriteBytes(CommandType.OK.toString());
                     user = tmp;
                     System.out.println(user.getUsername() + " has connected again :)");
                 }
@@ -156,7 +141,33 @@ public class ClientHandler extends Thread {
         return error; // return error
     }
 
-    //function to send data in every moment it will be used 
-    // by 
-    
+    // function to send data in every moment it will be used
+    // by external obj/classes - TODO!!!: try to move it in other thread
+    // so it may become absolutly indipendent
+    //  the thread must be launched in ClientHandler
+    // this way clientHandler can "give" it as a parameter to every other class
+    public boolean sendData(String data) {
+        try {
+            this.WriteBytes(data);
+            return true;
+        } catch (IOException e) {
+            return false;    
+        }
+    }
+
+    // method for send a string , with before the implementation of "\n"
+    private void WriteBytes(String stringtosout) throws IOException {
+        out.writeBytes(stringtosout + "\n");
+    }
+
+    // return an array the Gson of ChatToSend and require an array of ChatInterface
+    private String getJSONToSend(ArrayList<ChatInterface> chats) {
+        ArrayList<JsonChat> toJson = new ArrayList<>();
+        for (ChatInterface i : chats) {
+            toJson.add(new JsonChat(i.getChatId(), i.getChatName(), i.getAllMessages()));
+        }
+
+        return new Gson().toJson(toJson);
+    }
+
 }
