@@ -47,4 +47,19 @@ public class Chat implements ChatInterface{
     public ArrayList<Message> getAllMessages() {
         return this.messages;
     }
+
+    @Override
+    public int addNewMsg(Message message) {
+        if(messages.contains(message.getId())){
+            return -1;
+        }
+       message.setId(message.getId() + 1) ;
+       messages.add(message);
+       return message.getId();
+    }
+
+   
+
+
+    
 }
