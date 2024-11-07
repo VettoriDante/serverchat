@@ -6,6 +6,7 @@ import com.serverchat.protocol.Message;
 
 public class Chat implements ChatInterface{
     private static int nextId = 0;
+    private int messagesID;
     private int id;
     private User user1;
     private User user2;

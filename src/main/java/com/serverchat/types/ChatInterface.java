@@ -12,4 +12,5 @@ public interface ChatInterface {
     public int getChatId();
     public String getChatName();
     public ArrayList<Message> getAllMessages();
+    public int addNewMsg();
 }

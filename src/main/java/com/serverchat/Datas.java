@@ -2,6 +2,8 @@ package com.serverchat;
 
 import java.util.ArrayList;
 
+import com.serverchat.protocol.JsonUser;
+import com.serverchat.protocol.Message;
 import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
 
@@ -44,7 +46,6 @@ public class Datas {
         //theorically this should also allow the server to have more clients for the same user
     }
     
-    //TODO: check datas
     //add a new user got Created in ClientHandler
     public synchronized void newUser(User newUser){
         allUsers.add(newUser);
@@ -79,13 +80,13 @@ public class Datas {
         return ans;
     }
 
-    //add di chat e gruppi
+    //add di chat and groups
     public synchronized void addChatGroup(ChatInterface toAdd){
         chatsData.add(toAdd);
     }
 
     //when a user try to create a username if it's already used return true
-    public boolean isExitingName(String name){
+    public synchronized boolean isExitingName(String name){
         for(User i : allUsers){
             if(i.getUsername().equals(name)) return true;
         }
@@ -93,7 +94,24 @@ public class Datas {
     }
 
     // add an obj to connectedUser
-    public void addConnectedClient(int userID, ClientHandler client){
+    public synchronized void addConnectedClient(int userID, ClientHandler client){
         connectedUsers.add(new UserClient(userID, client));
     }
+
+    // get all user as JsonUser
+    public synchronized ArrayList<JsonUser> getAllJsonUsers(){
+        if(allUsers.size() == 0) return null;
+        ArrayList<JsonUser> ans = new ArrayList<>();
+        for(User i : allUsers){
+            ans.add(new JsonUser(i.getUsername(), i.getPassword()));
+        }
+        return ans;
+    }
+
+    //send new message
+    public void addNewMsg(Message message){
+        message.get
+    }
+
+
 }
