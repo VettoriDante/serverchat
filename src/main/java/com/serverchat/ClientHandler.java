@@ -56,7 +56,7 @@ public class ClientHandler extends Thread {
 
             // Once you know who the user is, the server get ready to send him
             // all of his chats
-            ArrayList<ChatInterface> chats = datas.getChatsById(this.user.getId());
+            ArrayList<ChatInterface> chats = datas.getChatsByUserId(this.user.getId());
             WriteBytes(this.getJSONToSend(chats));
 
             // here the thread add himself to datas (connected)
