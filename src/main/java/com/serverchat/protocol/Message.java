@@ -45,6 +45,32 @@ public class Message {
         return senderName;
     }
 
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
+
+    public void setSenderId(int senderId) {
+        this.senderId = senderId;
+    }
+
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    
     
     
 }

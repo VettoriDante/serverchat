@@ -110,7 +110,7 @@ public class Datas {
 
     //send new message
     public void addNewMsg(Message message){
-        message.get
+        
     }
 
 
