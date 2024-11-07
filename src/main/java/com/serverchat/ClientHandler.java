@@ -146,14 +146,20 @@ public class ClientHandler extends Thread {
     // so it may become absolutly indipendent
     //  the thread must be launched in ClientHandler
     // this way clientHandler can "give" it as a parameter to every other class
-    public boolean sendData(String data) {
-        try {
-            this.WriteBytes(data);
-            return true;
-        } catch (IOException e) {
-            return false;    
-        }
+    // public boolean sendData(String data) {
+    //     try {
+    //         this.WriteBytes(data);
+    //         return true;
+    //     } catch (IOException e) {
+    //         return false;    
+    //     }
+    // }
+
+    //method that return the out of this client to be sent data
+    public DataOutputStream getOutputStream(){
+        return this.out;
     }
+
 
     // method for send a string , with before the implementation of "\n"
     private void WriteBytes(String stringtosout) throws IOException {

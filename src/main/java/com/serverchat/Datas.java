@@ -1,5 +1,7 @@
 package com.serverchat;
 
+import java.io.DataOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.serverchat.protocol.JsonUser;
@@ -133,7 +135,8 @@ public class Datas {
         for(UserClient client : this.connectedUsers){//searching into connected user for every user of this chat
             if(c.getUsersId().contains(client.getUsedID())){
                 //found connected user now sent him data
-                client.getClient().sendData(new Gson().toJson(m));
+                DataOutputStream out = client.getClient().getOutputStream();
+                new OutThread(out, new Gson().toJson(m)).start();
             }
         }
     }
