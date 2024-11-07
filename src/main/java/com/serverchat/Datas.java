@@ -2,25 +2,28 @@ package com.serverchat;
 
 import java.util.ArrayList;
 
+import com.serverchat.protocol.JsonUser;
+import com.serverchat.protocol.Message;
 import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
+import com.google.gson.*;
 
 public class Datas {
     private class UserClient {
-        private int usedID;
+        private int userID;
         private ClientHandler client;
         
-        public UserClient(int usedID, ClientHandler client) {
-            this.usedID = usedID;
+        public UserClient(int userID, ClientHandler client) {
+            this.userID = userID;
             this.client = client;
         }
 
         public int getUsedID() {
-            return usedID;
+            return userID;
         }
 
-        public void setUsedID(int usedID) {
-            this.usedID = usedID;
+        public void setUsedID(int userID) {
+            this.userID = userID;
         }
 
         public ClientHandler getClient() {
@@ -44,7 +47,6 @@ public class Datas {
         //theorically this should also allow the server to have more clients for the same user
     }
     
-    //TODO: check datas
     //add a new user got Created in ClientHandler
     public synchronized void newUser(User newUser){
         allUsers.add(newUser);
@@ -69,7 +71,7 @@ public class Datas {
     }
 
     //return an ArrayList of ChatInterface by UserID
-    public ArrayList<ChatInterface> getChatsById(int id){
+    public ArrayList<ChatInterface> getChatsByUserId(int id){
         ArrayList<ChatInterface> ans = new ArrayList<>();
         for(ChatInterface i : chatsData){
             if(i.getUsersId().contains(id)){
@@ -79,13 +81,20 @@ public class Datas {
         return ans;
     }
 
-    //add di chat e gruppi
+    public ChatInterface getChatByChatId(int chatId){
+        for(ChatInterface i : chatsData){
+            if(i.getChatId() == chatId)return i;
+        }
+        return null;
+    }  
+
+    //add di chat and groups
     public synchronized void addChatGroup(ChatInterface toAdd){
         chatsData.add(toAdd);
     }
 
     //when a user try to create a username if it's already used return true
-    public boolean isExitingName(String name){
+    public synchronized boolean isExitingName(String name){
         for(User i : allUsers){
             if(i.getUsername().equals(name)) return true;
         }
@@ -93,7 +102,41 @@ public class Datas {
     }
 
     // add an obj to connectedUser
-    public void addConnectedClient(int userID, ClientHandler client){
+    public synchronized void addConnectedClient(int userID, ClientHandler client){
         connectedUsers.add(new UserClient(userID, client));
     }
+
+    // get all user as JsonUser
+    public synchronized ArrayList<JsonUser> getAllJsonUsers(){
+        if(allUsers.size() == 0) return null;
+        ArrayList<JsonUser> ans = new ArrayList<>();
+        for(User i : allUsers){
+            ans.add(new JsonUser(i.getUsername(), i.getPassword()));
+        }
+        return ans;
+    }
+
+    //send new message
+    public boolean addNewMsg(Message message){
+        //get the chat of this message
+        ChatInterface c = this.getChatByChatId(message.getChatId());
+        //add the message into the chat
+        int val = c.addNewMsg(message);
+        if(val <= 0) return false;// if the user was not in the chat
+        //check 
+        sendMessageToOthers(message, c);
+        return true;
+    }
+
+    //this search for each user in the client
+    private void sendMessageToOthers(Message m, ChatInterface c){
+        for(UserClient client : this.connectedUsers){//searching into connected user for every user of this chat
+            if(c.getUsersId().contains(client.getUsedID())){
+                //found connected user now sent him data
+                client.getClient().sendData(new Gson().toJson(m));
+            }
+        }
+    }
+
+
 }

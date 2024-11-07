@@ -7,6 +7,7 @@ import com.serverchat.protocol.Message;
 public class Group implements ChatInterface {
     // basic var
     private static int nextId = 0;
+    private int messageID;
     private int id;
     private String groupName;
     private ArrayList<GroupUser> members;
@@ -74,5 +75,16 @@ public class Group implements ChatInterface {
 
         
     }
+
+    @Override
+    public int addNewMsg(Message message) {
+        if(messages.contains(message.getId())){
+            return -1;
+        }
+       message.setId(message.getId() + 1) ;
+       messages.add(message);
+       return message.getId();
+    }
+   
 
 }

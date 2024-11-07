@@ -6,6 +6,7 @@ import com.serverchat.protocol.Message;
 
 public class Chat implements ChatInterface{
     private static int nextId = 0;
+    private int messagesID;
     private int id;
     private User user1;
     private User user2;
@@ -46,4 +47,19 @@ public class Chat implements ChatInterface{
     public ArrayList<Message> getAllMessages() {
         return this.messages;
     }
+
+    @Override
+    public int addNewMsg(Message message) {
+        if(messages.contains(message.getId())){
+            return -1;
+        }
+       message.setId(message.getId() + 1) ;
+       messages.add(message);
+       return message.getId();
+    }
+
+   
+
+
+    
 }
