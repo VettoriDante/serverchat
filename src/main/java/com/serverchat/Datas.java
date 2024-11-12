@@ -1,7 +1,6 @@
 package com.serverchat;
 
 import java.io.DataOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.serverchat.protocol.JsonUser;

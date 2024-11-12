@@ -7,8 +7,8 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.serverchat.protocol.JsonChat;
+import com.serverchat.protocol.JsonGroup;
 import com.serverchat.protocol.CommandType;
 import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
@@ -16,12 +16,8 @@ import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
 
-import javax.swing.GroupLayout.Group;
-
 public class ClientHandler extends Thread {
     private User user;
-    private ArrayList<Chat> userChats;
-    private ArrayList<Group> userGroups;
     private BufferedReader in;
     private DataOutputStream out;
     private Socket socket;
@@ -74,6 +70,24 @@ public class ClientHandler extends Thread {
                 String input = null; 
 // 
                 switch (command) {
+                    case SEND_MSG:
+                    //sending a new message
+                    Message m = new Gson().fromJson(in.readLine(), Message.class);//try to cast to message
+                    //send error or ok
+                    if(m == null){
+                        this.WriteBytes(CommandType.ERR_WRONG_DATA);//not able to cast
+                    }
+                    else{
+                        if(datas.addNewMsg(m)){
+                            WriteBytes(CommandType.OK);
+                            WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
+                        }
+                        else
+                        {
+                            WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
+                        }
+                    }
+                    break;
                     case NEW_CHAT:
                         input = new Gson().fromJson(in.readLine(), String.class);//input will be username
                         //will be sent only the username of the other "component" and use this.user to create the chat
@@ -86,24 +100,16 @@ public class ClientHandler extends Thread {
                         }
                         this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
                         break;
-                    case SEND_MSG:
-                        //sending a new message
-                        input = in.readLine();//recive message
-                        Message m = new Gson().fromJson(input, Message.class);//try to cast to message
-                        //send error or ok
-                        if(m == null){
-                            this.WriteBytes(CommandType.ERR_WRONG_DATA);//not able to cast
-                        }
-                        else{
-                            if(datas.addNewMsg(m)){
-                                WriteBytes(CommandType.OK);
-                                WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
+                        case NEW_GROUP:
+                            JsonGroup newGroup = new Gson().fromJson(in.readLine(), JsonGroup.class);
+                            if(newGroup == null){
+                                WriteBytes(CommandType.ERR_WRONG_DATA);
                             }
-                            else
-                            {
-                                WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
+                            else{
+                                
                             }
-                        }
+                        case LOGOUT:
+                            socket.close();//close the socket on clientLogout
                         break;
                     default:
                         WriteBytes(CommandType.ERR_WRONG_DATA);
