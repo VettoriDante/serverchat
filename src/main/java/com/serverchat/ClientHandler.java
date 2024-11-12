@@ -136,6 +136,11 @@ public class ClientHandler extends Thread {
                             }
                             WriteBytes(CommandType.OK);//send the OK
                             WriteBytes(new Gson().toJson(allUserChats));// send an array of JsonChat
+                        case UPD_NAME:
+                            input = new Gson().fromJson(in.readLine(), String.class);
+                            this.user.setUsername(input);
+                            WriteBytes(CommandType.OK);
+                            this.out.writeBytes(null);
                         case LOGOUT:
                             socket.close();//close the socket on clientLogout
                         break;
