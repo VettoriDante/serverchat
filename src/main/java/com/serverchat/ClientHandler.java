@@ -126,6 +126,16 @@ public class ClientHandler extends Thread {
                             
                             this.out.writeBytes(null);
                             break;
+                        case REQ_CHATS:
+                            in.readLine();//will recive null (no data required)
+                            ArrayList<ChatInterface> allUserChats = datas.getChatsByUserId(this.getUserId());
+                            ArrayList<JsonChat> chatsToSend = new ArrayList<>();
+                            for(ChatInterface chat : allUserChats){
+                                //create an array of JsonChat
+                                chatsToSend.add(new JsonChat(chat.getChatId(), chat.getChatName(), chat.getAllMessages()));
+                            }
+                            WriteBytes(CommandType.OK);//send the OK
+                            WriteBytes(new Gson().toJson(allUserChats));// send an array of JsonChat
                         case LOGOUT:
                             socket.close();//close the socket on clientLogout
                         break;

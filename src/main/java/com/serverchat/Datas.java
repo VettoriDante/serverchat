@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.util.ArrayList;
 
 import com.serverchat.protocol.CommandType;
+import com.serverchat.protocol.JsonChat;
 import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
 import com.serverchat.types.Chat;
@@ -83,12 +84,13 @@ public class Datas {
         }
     }
 
-    private void sendNotifications(ClientHandler client , boolean isChat , ChatInterface chat){
-        if (isChat){
+    //send notification every time a chat is created
+    private synchronized void sendNotifications(ClientHandler client , boolean isChat , ChatInterface chat){
+            //advise the user of the new incoming chat
             new OutThread (client.getOutputStream(), CommandType.NEW_CHAT.toString() ).start();
-            Chat c = (Chat) chat;
-            new OutThread (client.getOutputStream(), new Gson().toJson(c)).start();
-        }
+            JsonChat toSend = new JsonChat(chat.getChatId(), chat.getChatName(), chat.getAllMessages());
+            new OutThread (client.getOutputStream(), new Gson().toJson(toSend)).start();//send data as a JsonChat OBJ
+            //which is the "standard" to send and recive chats
     }
 
     //when a user try to create a username if it's already user return true
