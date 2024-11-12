@@ -14,6 +14,7 @@ import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
 import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
+import com.serverchat.types.Group;
 import com.serverchat.types.User;
 
 public class ClientHandler extends Thread {
@@ -101,13 +102,30 @@ public class ClientHandler extends Thread {
                         this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
                         break;
                         case NEW_GROUP:
-                            JsonGroup newGroup = new Gson().fromJson(in.readLine(), JsonGroup.class);
+                        // get info to create new group 
+                            JsonGroup newGroup = new Gson().fromJson(in.readLine(), JsonGroup.class); // try to cast check the group status
+                            Group g = null;// create new group 
                             if(newGroup == null){
                                 WriteBytes(CommandType.ERR_WRONG_DATA);
                             }
                             else{
-                                
+                                // create a new group and then add all users
+                                for(int i = 0; i < newGroup.getUsernameList().size(); i++){
+                                    if(i == 0){
+                                        // the first time it create the group and add first admin
+                                        g = new Group(newGroup.getGroupName(), datas.getUserByName(newGroup.getUsernameList().get(0)));
+                                    }
+                                    else{
+                                        //add every user
+                                        g.addUser(datas.getUserByName(newGroup.getUsernameList().get(i)));
+                                    }
+                                }
                             }
+                            datas.addChatGroup(g); // add group to datas 
+                            WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
+                            
+                            this.out.writeBytes(null);
+                            break;
                         case LOGOUT:
                             socket.close();//close the socket on clientLogout
                         break;

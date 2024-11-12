@@ -3,8 +3,10 @@ package com.serverchat;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
 
+import com.serverchat.protocol.CommandType;
 import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
+import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
 import com.google.gson.*;
@@ -70,9 +72,23 @@ public class Datas {
         return null;
     }  
 
-    //add di chat and groups
+    //add of chat and groups
     public synchronized void addChatGroup(ChatInterface toAdd){
         chatsData.add(toAdd);
+        for(ClientHandler i : this.connectedUsers){
+            if(toAdd.getUsersId().contains(i.getUserId()) && i.getUserId() != toAdd.getUsersId().get(0)){
+                //if the user is into the chat && is ConnectedNow
+                sendNotifications(i, (toAdd instanceof Chat), toAdd);
+            }
+        }
+    }
+
+    private void sendNotifications(ClientHandler client , boolean isChat , ChatInterface chat){
+        if (isChat){
+            new OutThread (client.getOutputStream(), CommandType.NEW_CHAT.toString() ).start();
+            Chat c = (Chat) chat;
+            new OutThread (client.getOutputStream(), new Gson().toJson(c)).start();
+        }
     }
 
     //when a user try to create a username if it's already user return true

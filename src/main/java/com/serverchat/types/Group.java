@@ -21,6 +21,20 @@ public class Group implements ChatInterface {
         members.add(new GroupUser(true, firstUser));
     }
 
+    public boolean ContainUser(User user){
+        for (GroupUser member: members) {
+            if ( member.getUser().getId() == user.getId())
+            return true; 
+        }
+        return false;
+    }
+
+    public boolean addUser(User user){
+        if(this.ContainUser(user)) return false;
+        this.members.add(new GroupUser(false, user));
+        return true;
+    }
+
     // return the chat id
     @Override
     public int getChatId() {
@@ -45,6 +59,16 @@ public class Group implements ChatInterface {
     @Override
     public ArrayList<Message> getAllMessages() {
         return this.messages;
+    }
+
+    @Override
+    public int addNewMsg(Message message) {
+        for(Message m : messages){
+            if(m.getId() == message.getId()) return -1;
+        }
+       message.setId(messageID++) ;
+       messages.add(message);
+       return message.getId();
     }
 
     // Intenal class used to give each user a "role"
@@ -72,18 +96,6 @@ public class Group implements ChatInterface {
         public void setAdmin(boolean isAdmin) {
             this.isAdmin = isAdmin;
         }
-
-        
-    }
-
-    @Override
-    public int addNewMsg(Message message) {
-        for(Message m : messages){
-            if(m.getId() == message.getId()) return -1;
-        }
-       message.setId(messageID++) ;
-       messages.add(message);
-       return message.getId();
     }
    
 
