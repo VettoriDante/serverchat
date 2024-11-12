@@ -81,7 +81,7 @@ public class Group implements ChatInterface {
         for(Message m : messages){
             if(m.getId() == message.getId()) return -1;
         }
-       message.setId(message.getId() + 1) ;
+       message.setId(messageID++) ;
        messages.add(message);
        return message.getId();
     }

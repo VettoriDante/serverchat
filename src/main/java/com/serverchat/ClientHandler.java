@@ -75,7 +75,7 @@ public class ClientHandler extends Thread {
 // 
                 switch (command) {
                     case NEW_CHAT:
-                        input = in.readLine();//input will be username
+                        input = new Gson().fromJson(in.readLine(), String.class);//input will be username
                         //will be sent only the username of the other "component" and use this.user to create the chat
                         User t = datas.getUserByName(input);
                         Chat c = null;
@@ -131,16 +131,16 @@ public class ClientHandler extends Thread {
                 // for new user wait to be sent all user info
                 JsonUser newUserJ = new Gson().fromJson(inputs, JsonUser.class);// transform datas recived into a User
                 if (newUserJ == null) {
-                    WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                    WriteBytes(CommandType.ERR_WRONG_DATA);
                     error = true;
                 } else {
                     if (datas.isExitingName(newUserJ.getUsername())) {
-                        WriteBytes(CommandType.ERR_USER_EXISTS.toString());
+                        WriteBytes(CommandType.ERR_USER_EXISTS);
                     }
                     User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
                     datas.newUser(newUser);// add the new user to the general array of datas
                     user = newUser; // set this.user
-                    WriteBytes(CommandType.OK.toString()); // send the ok
+                    WriteBytes(CommandType.OK); // send the ok
                     System.out.println("new user has been created username: " + user.getUsername());
                 }
                 break;
@@ -150,13 +150,13 @@ public class ClientHandler extends Thread {
                 // check if the user was successfully found
                 if (tmp == null) {
                     if (datas.isExitingName(searchFor.getUsername())) {
-                        WriteBytes(CommandType.ERR_NOT_FOUND.toString());
+                        WriteBytes(CommandType.ERR_NOT_FOUND);
                     } else {
-                        WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                        WriteBytes(CommandType.ERR_WRONG_DATA);
                     }
                     error = true;
                 } else {
-                    WriteBytes(CommandType.OK.toString());
+                    WriteBytes(CommandType.OK);
                     user = tmp;
                     System.out.println(user.getUsername() + " has connected again :)");
                 }
@@ -164,7 +164,7 @@ public class ClientHandler extends Thread {
                 case EXIT:
                 //what to do on exit
             default:
-                WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                WriteBytes(CommandType.ERR_WRONG_DATA);
                 error = true;
                 break;
         }
@@ -176,6 +176,11 @@ public class ClientHandler extends Thread {
         return this.out;
     }
 
+    //return this.user.getId
+    public int getUserId(){
+        return this.user.getId();
+    } 
+
 
     // method for send a string , with before the implementation of "\n"
     private void WriteBytes(String stringtosout) throws IOException {
@@ -183,7 +188,7 @@ public class ClientHandler extends Thread {
     }
 
     private void WriteBytes(CommandType commandToSout) throws IOException {
-        out.writeBytes(commandToSout + "\n");
+        out.writeBytes(commandToSout.toString() + "\n");
     }
 
     // return an array the Gson of ChatToSend and require an array of ChatInterface

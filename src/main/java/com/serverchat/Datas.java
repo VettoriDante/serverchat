@@ -11,26 +11,9 @@ import com.serverchat.types.User;
 import com.google.gson.*;
 
 public class Datas {
-    private class UserClient {
-        private int userID;
-        private ClientHandler client;
-        
-        public UserClient(int userID, ClientHandler client) {
-            this.userID = userID;
-            this.client = client;
-        }
-
-        public int getUserID() {
-            return userID;
-        }
-
-        public ClientHandler getClient() {
-            return client;
-        }        
-    }
     public ArrayList<User> allUsers;
     public ArrayList<ChatInterface> chatsData;
-    public ArrayList<UserClient> connectedUsers;
+    public ArrayList<ClientHandler> connectedUsers;
     
     public Datas() {
         allUsers = new ArrayList<>();
@@ -103,7 +86,7 @@ public class Datas {
 
     // add an obj to connectedUser
     public synchronized void addConnectedClient(int userID, ClientHandler client){
-        connectedUsers.add(new UserClient(userID, client));
+        connectedUsers.add(client);
     }
 
     // get all user as JsonUser
@@ -130,12 +113,12 @@ public class Datas {
 
     //this search for each user in the client
     private void sendMessageToOthers(Message m, ChatInterface c){
-        for(UserClient client : this.connectedUsers){//searching into connected user for every user of this chat
-            if(c.getUsersId().contains(client.getUserID()) && client.userID != m.getSenderId()){//check if the client is in the chat
+        for(ClientHandler client : this.connectedUsers){//searching into connected user for every user of this chat
+            if(c.getUsersId().contains(client.getUserId()) && client.getUserId() != m.getSenderId()){//check if the client is in the chat
                 //and its different from the sender
 
                 //found connected user now sent him data
-                DataOutputStream out = client.getClient().getOutputStream();//get the outputStream of the client which will be sent data
+                DataOutputStream out = client.getOutputStream();//get the outputStream of the client which will be sent data
                 //passing the output OBJ
                 new OutThread(out, new Gson().toJson(m)).start();
             }
