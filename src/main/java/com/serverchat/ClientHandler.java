@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.serverchat.protocol.JsonChat;
 import com.serverchat.protocol.CommandType;
 import com.serverchat.protocol.JsonUser;
+import com.serverchat.protocol.Message;
 import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
 import com.serverchat.types.User;
@@ -69,16 +71,42 @@ public class ClientHandler extends Thread {
                 // read and cast the new command
                 inCommand = in.readLine();
                 command = CommandType.valueOf(inCommand); // cast like operation
-
+                String input = null; 
+// 
                 switch (command) {
                     case NEW_CHAT:
-
+                        input = in.readLine();//input will be username
+                        //will be sent only the username of the other "component" and use this.user to create the chat
+                        User t = datas.getUserByName(input);
+                        Chat c = null;
+                        if(t == null){this.WriteBytes(CommandType.ERR_NOT_FOUND);}
+                        else{
+                            c = new Chat(this.user, t);
+                            datas.addChatGroup(c);
+                        }
+                        this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
                         break;
                     case SEND_MSG:
-
+                        //sending a new message
+                        input = in.readLine();//recive message
+                        Message m = new Gson().fromJson(input, Message.class);//try to cast to message
+                        //send error or ok
+                        if(m == null){
+                            this.WriteBytes(CommandType.ERR_WRONG_DATA);//not able to cast
+                        }
+                        else{
+                            if(datas.addNewMsg(m)){
+                                WriteBytes(CommandType.OK);
+                                WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
+                            }
+                            else
+                            {
+                                WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
+                            }
+                        }
                         break;
                     default:
-                        WriteBytes(CommandType.ERR_WRONG_DATA.toString());
+                        WriteBytes(CommandType.ERR_WRONG_DATA);
                         break;
                 }
                 // here will go every operation
@@ -133,6 +161,8 @@ public class ClientHandler extends Thread {
                     System.out.println(user.getUsername() + " has connected again :)");
                 }
                 break;
+                case EXIT:
+                //what to do on exit
             default:
                 WriteBytes(CommandType.ERR_WRONG_DATA.toString());
                 error = true;
@@ -140,20 +170,6 @@ public class ClientHandler extends Thread {
         }
         return error; // return error
     }
-
-    // function to send data in every moment it will be used
-    // by external obj/classes - TODO!!!: try to move it in other thread
-    // so it may become absolutly indipendent
-    //  the thread must be launched in ClientHandler
-    // this way clientHandler can "give" it as a parameter to every other class
-    // public boolean sendData(String data) {
-    //     try {
-    //         this.WriteBytes(data);
-    //         return true;
-    //     } catch (IOException e) {
-    //         return false;    
-    //     }
-    // }
 
     //method that return the out of this client to be sent data
     public DataOutputStream getOutputStream(){
@@ -164,6 +180,10 @@ public class ClientHandler extends Thread {
     // method for send a string , with before the implementation of "\n"
     private void WriteBytes(String stringtosout) throws IOException {
         out.writeBytes(stringtosout + "\n");
+    }
+
+    private void WriteBytes(CommandType commandToSout) throws IOException {
+        out.writeBytes(commandToSout + "\n");
     }
 
     // return an array the Gson of ChatToSend and require an array of ChatInterface

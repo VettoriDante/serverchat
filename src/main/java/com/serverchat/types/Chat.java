@@ -50,10 +50,10 @@ public class Chat implements ChatInterface{
 
     @Override
     public int addNewMsg(Message message) {
-        if(messages.contains(message.getId())){
-            return -1;
+        for(Message m : messages){
+            if(m.getId() == message.getId()) return -1;
         }
-       message.setId(message.getId() + 1) ;
+       message.setId(messagesID++) ;
        messages.add(message);
        return message.getId();
     }

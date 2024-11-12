@@ -20,23 +20,13 @@ public class Datas {
             this.client = client;
         }
 
-        public int getUsedID() {
+        public int getUserID() {
             return userID;
-        }
-
-        public void setUsedID(int userID) {
-            this.userID = userID;
         }
 
         public ClientHandler getClient() {
             return client;
-        }
-
-        public void setClient(ClientHandler client) {
-            this.client = client;
-        }
-
-        
+        }        
     }
     public ArrayList<User> allUsers;
     public ArrayList<ChatInterface> chatsData;
@@ -52,6 +42,14 @@ public class Datas {
     //add a new user got Created in ClientHandler
     public synchronized void newUser(User newUser){
         allUsers.add(newUser);
+    }
+
+    //return the whole user by his username
+    public User getUserByName(String username){
+        for(User u : allUsers){
+            if(u.getUsername().equals(username)) return u;
+        }
+        return null;
     }
 
     //return a user (if it exists) by Username && Password
@@ -95,7 +93,7 @@ public class Datas {
         chatsData.add(toAdd);
     }
 
-    //when a user try to create a username if it's already used return true
+    //when a user try to create a username if it's already user return true
     public synchronized boolean isExitingName(String name){
         for(User i : allUsers){
             if(i.getUsername().equals(name)) return true;
@@ -133,9 +131,12 @@ public class Datas {
     //this search for each user in the client
     private void sendMessageToOthers(Message m, ChatInterface c){
         for(UserClient client : this.connectedUsers){//searching into connected user for every user of this chat
-            if(c.getUsersId().contains(client.getUsedID())){
+            if(c.getUsersId().contains(client.getUserID()) && client.userID != m.getSenderId()){//check if the client is in the chat
+                //and its different from the sender
+
                 //found connected user now sent him data
-                DataOutputStream out = client.getClient().getOutputStream();
+                DataOutputStream out = client.getClient().getOutputStream();//get the outputStream of the client which will be sent data
+                //passing the output OBJ
                 new OutThread(out, new Gson().toJson(m)).start();
             }
         }
