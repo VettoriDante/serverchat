@@ -122,7 +122,7 @@ public class Datas {
         ChatInterface c = this.getChatByChatId(message.getChatId());
         //add the message into the chat
         int val = c.addNewMsg(message);
-        if(val <= 0) return false;// if the user was not in the chat
+        if(val < 0) return false;// if the user was not in the chat
         //check 
         sendMessageToOthers(message, c);
         return true;

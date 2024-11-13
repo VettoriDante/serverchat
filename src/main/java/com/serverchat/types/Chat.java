@@ -18,6 +18,7 @@ public class Chat implements ChatInterface{
         this.id = nextId++;
         this.user1 = user1;
         this.user2 = user2;
+        this.messagesID = 0;
     }
 
     //implements ChatInterface
@@ -51,12 +52,12 @@ public class Chat implements ChatInterface{
 
     @Override
     public int addNewMsg(Message message) {
+        message.setId(messagesID++);
         for(Message m : messages){
             if(m.getId() == message.getId()) return -1;
         }
-       message.setId(messagesID++) ;
-       messages.add(message);
-       return message.getId();
+        messages.add(message);
+        return message.getId();
     }
 
    

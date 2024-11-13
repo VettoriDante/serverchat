@@ -79,6 +79,7 @@ public class ClientHandler extends Thread {
                         this.WriteBytes(CommandType.ERR_WRONG_DATA);//not able to cast
                     }
                     else{
+                        m.setSenderId(this.user.getId());
                         if(datas.addNewMsg(m)){
                             WriteBytes(CommandType.OK);
                             WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
@@ -88,6 +89,7 @@ public class ClientHandler extends Thread {
                             WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
                         }
                     }
+                    this.out.writeBytes(null);
                     break;
                     case NAV_CHAT:
                         String chatIdentifier = new Gson().fromJson(in.readLine(), String.class);
@@ -103,7 +105,8 @@ public class ClientHandler extends Thread {
                         }catch(Exception e){
                             WriteBytes(CommandType.ERR_WRONG_DATA);
                         }
-                    break;
+                        this.out.writeBytes(null);
+                        break;
                     case NEW_CHAT:
                         input = new Gson().fromJson(in.readLine(), String.class);//input will be username
                         //will be sent only the username of the other "component" and use this.user to create the chat
@@ -113,6 +116,7 @@ public class ClientHandler extends Thread {
                         else{
                             c = new Chat(this.user, t);
                             datas.addChatGroup(c);
+                            WriteBytes(CommandType.OK);
                         }
                         this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
                         break;

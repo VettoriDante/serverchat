@@ -17,7 +17,7 @@ public enum CommandType {
     LOGOUT("Logout from the current account"),
     EXIT("Exit from the app and close the connection"),
     OK("The previous command was executed successfully"),
-
+    INIT("Send initial user's chat array"),
 
     // chat management
     NEW_CHAT("Initiate a new private chat"),

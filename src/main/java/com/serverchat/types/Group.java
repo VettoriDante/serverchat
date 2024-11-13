@@ -19,6 +19,7 @@ public class Group implements ChatInterface {
         this.id = nextId++;
         this.members = new ArrayList<>();
         this.groupName = name;
+        this.messageID = 0;
         members.add(new GroupUser(true, firstUser));
     }
 
@@ -64,10 +65,10 @@ public class Group implements ChatInterface {
 
     @Override
     public int addNewMsg(Message message) {
+        message.setId(messageID++) ;
         for(Message m : messages){
             if(m.getId() == message.getId()) return -1;
         }
-       message.setId(messageID++) ;
        messages.add(message);
        return message.getId();
     }
