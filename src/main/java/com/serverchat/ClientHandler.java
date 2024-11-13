@@ -55,6 +55,7 @@ public class ClientHandler extends Thread {
 
             // Once you know who the user is, the server get ready to send him
             // all of his chats
+            WriteBytes(CommandType.INIT);
             ArrayList<ChatInterface> chats = datas.getChatsByUserId(this.user.getId());
             WriteBytes(this.getJSONToSend(chats));
 
@@ -89,7 +90,7 @@ public class ClientHandler extends Thread {
                             WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
                         }
                     }
-                    this.out.writeBytes(null);
+                    this.WriteByteNull();
                     break;
                     case NAV_CHAT:
                         String chatIdentifier = new Gson().fromJson(in.readLine(), String.class);
@@ -105,7 +106,7 @@ public class ClientHandler extends Thread {
                         }catch(Exception e){
                             WriteBytes(CommandType.ERR_WRONG_DATA);
                         }
-                        this.out.writeBytes(null);
+                        this.WriteByteNull();
                         break;
                     case NEW_CHAT:
                         input = new Gson().fromJson(in.readLine(), String.class);//input will be username
@@ -118,7 +119,7 @@ public class ClientHandler extends Thread {
                             datas.addChatGroup(c);
                             WriteBytes(CommandType.OK);
                         }
-                        this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
+                        this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
                         break;
                         case NEW_GROUP:
                         // get info to create new group 
@@ -143,7 +144,7 @@ public class ClientHandler extends Thread {
                             datas.addChatGroup(g); // add group to datas 
                             WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
                             
-                            this.out.writeBytes(null);
+                            this.WriteByteNull();
                             break;
                         case REQ_CHATS:
                             in.readLine();//will recive null (no data required)
@@ -165,12 +166,15 @@ public class ClientHandler extends Thread {
                                 //set the username
                                 this.user.setUsername(newUsername.getUsername());
                                 WriteBytes(CommandType.OK);
-                                this.out.writeBytes(null);
+                                this.WriteByteNull();
                             }
                         break;
                         case LOGOUT:
                             this.user = null;
-                            this.Authentication();
+                            boolean auth = true;
+                            do{
+                                auth = this.Authentication();
+                            }while(auth);
                         case EXIT://close the socket
                             socket.close();//close the socket on clientLogout
                         break;
@@ -237,6 +241,7 @@ public class ClientHandler extends Thread {
                 error = true;
                 break;
         }
+        this.WriteByteNull();
         return error; // return error
     }
 
@@ -258,6 +263,10 @@ public class ClientHandler extends Thread {
 
     private void WriteBytes(CommandType commandToSout) throws IOException {
         out.writeBytes(commandToSout.toString() + "\n");
+    }
+
+    private void WriteByteNull() throws IOException{
+        this.out.writeBytes(null + "\n");
     }
 
     // return an array the Gson of ChatToSend and require an array of ChatInterface
