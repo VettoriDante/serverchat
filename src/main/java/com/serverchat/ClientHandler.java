@@ -84,13 +84,13 @@ public class ClientHandler extends Thread {
                         if(datas.addNewMsg(m)){
                             WriteBytes(CommandType.OK);
                             WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
+                            this.WriteByteNull();
                         }
                         else
                         {
                             WriteBytes(CommandType.ERR_GEN);//something went wrong with the message
                         }
                     }
-                    this.WriteByteNull();
                     break;
                     case NAV_CHAT:
                         String chatIdentifier = new Gson().fromJson(in.readLine(), String.class);
@@ -99,6 +99,7 @@ public class ClientHandler extends Thread {
                             chatId = Integer.parseInt(chatIdentifier);
                             if(datas.isAllownToChat(chatId, this.getUserId())){
                                 WriteBytes(CommandType.OK);
+                                this.WriteByteNull();
                             }
                             else{
                                 WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -106,7 +107,6 @@ public class ClientHandler extends Thread {
                         }catch(Exception e){
                             WriteBytes(CommandType.ERR_WRONG_DATA);
                         }
-                        this.WriteByteNull();
                         break;
                     case NEW_CHAT:
                         input = new Gson().fromJson(in.readLine(), String.class);//input will be username
@@ -118,8 +118,8 @@ public class ClientHandler extends Thread {
                             c = new Chat(this.user, t);
                             datas.addChatGroup(c);
                             WriteBytes(CommandType.OK);
+                            this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
                         }
-                        this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
                         break;
                         case NEW_GROUP:
                         // get info to create new group 
@@ -140,11 +140,10 @@ public class ClientHandler extends Thread {
                                         g.addUser(datas.getUserByName(newGroup.getUsernameList().get(i)));
                                     }
                                 }
-                            }
-                            datas.addChatGroup(g); // add group to datas 
-                            WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
-                            
-                            this.WriteByteNull();
+                                datas.addChatGroup(g); // add group to datas 
+                                WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
+                                this.WriteByteNull();
+                            }                            
                             break;
                         case REQ_CHATS:
                             in.readLine();//will recive null (no data required)
@@ -167,6 +166,21 @@ public class ClientHandler extends Thread {
                                 this.user.setUsername(newUsername.getUsername());
                                 WriteBytes(CommandType.OK);
                                 this.WriteByteNull();
+                            }
+                        break;
+                        case RM_MSG:
+                            m = new Gson().fromJson(in.readLine(), Message.class);
+                            if(m == null){
+                                WriteBytes(CommandType.ERR_WRONG_DATA);
+                            }
+                            else{
+                                if(datas.getChatByChatId(m.getChatId()).rmMessage(m.getId(), m.getSenderId())){
+                                    WriteBytes(CommandType.OK);
+                                    WriteByteNull();
+                                }
+                                else{
+                                    WriteBytes(CommandType.ERR_NOT_FOUND);
+                                }
                             }
                         break;
                         case LOGOUT:
@@ -236,6 +250,7 @@ public class ClientHandler extends Thread {
                 break;
                 case EXIT:
                 //what to do on exit
+                socket.close();
             default:
                 WriteBytes(CommandType.ERR_WRONG_DATA);
                 error = true;

@@ -13,6 +13,7 @@ public interface ChatInterface {
     public String getChatName();
     public ArrayList<Message> getAllMessages();
     public int addNewMsg(Message message);
+    public boolean rmMessage(int messageId, int userID);
 }
 
 

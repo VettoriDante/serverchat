@@ -73,6 +73,22 @@ public class Group implements ChatInterface {
        return message.getId();
     }
 
+    @Override
+    public boolean rmMessage(int messageId, int userID) {
+        Message m = null;
+        for(Message i : messages){
+            if(i.getId() == messageId) m = i;
+        }
+        if(m == null) return false;
+        if(m.getSenderId() == userID){
+            messages.remove(m);
+            return true;
+        }
+        else{
+            return true;
+        }
+    }
+
     // Intenal class used to give each user a "role"
     private class GroupUser {
         private boolean isAdmin;

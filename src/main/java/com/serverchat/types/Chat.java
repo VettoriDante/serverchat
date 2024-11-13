@@ -60,6 +60,22 @@ public class Chat implements ChatInterface{
         return message.getId();
     }
 
+    @Override
+    public boolean rmMessage(int messageId, int userID) {
+        Message m = null;
+        for(Message i : messages){
+            if(i.getId() == messageId) m = i;
+        }
+        if(m == null) return false;
+        if(m.getSenderId() == userID){
+            messages.remove(m);
+            return true;
+        }
+        else{
+            return true;
+        }
+    }
+
    
 
 
