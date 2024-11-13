@@ -14,6 +14,7 @@ public class Chat implements ChatInterface{
 
     //constructor
     public Chat(User user1, User user2){
+        this.messages = new ArrayList<>();
         this.id = nextId++;
         this.user1 = user1;
         this.user2 = user2;

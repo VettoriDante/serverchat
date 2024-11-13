@@ -15,6 +15,7 @@ public class Group implements ChatInterface {
 
     // constructor with generated ID
     public Group(String name, User firstUser) {
+        this.messages = new ArrayList<>();
         this.id = nextId++;
         this.members = new ArrayList<>();
         this.groupName = name;

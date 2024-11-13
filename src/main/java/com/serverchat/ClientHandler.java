@@ -89,6 +89,21 @@ public class ClientHandler extends Thread {
                         }
                     }
                     break;
+                    case NAV_CHAT:
+                        String chatIdentifier = new Gson().fromJson(in.readLine(), String.class);
+                        try{
+                            int chatId;
+                            chatId = Integer.parseInt(chatIdentifier);
+                            if(datas.isAllownToChat(chatId, this.getUserId())){
+                                WriteBytes(CommandType.OK);
+                            }
+                            else{
+                                WriteBytes(CommandType.ERR_NOT_FOUND);
+                            }
+                        }catch(Exception e){
+                            WriteBytes(CommandType.ERR_WRONG_DATA);
+                        }
+                    break;
                     case NEW_CHAT:
                         input = new Gson().fromJson(in.readLine(), String.class);//input will be username
                         //will be sent only the username of the other "component" and use this.user to create the chat
@@ -137,11 +152,22 @@ public class ClientHandler extends Thread {
                             WriteBytes(CommandType.OK);//send the OK
                             WriteBytes(new Gson().toJson(allUserChats));// send an array of JsonChat
                         case UPD_NAME:
-                            input = new Gson().fromJson(in.readLine(), String.class);
-                            this.user.setUsername(input);
-                            WriteBytes(CommandType.OK);
-                            this.out.writeBytes(null);
+                            JsonUser newUsername = new Gson().fromJson(in.readLine(), JsonUser.class);//read the new username
+                            if(newUsername == null ){
+                                WriteBytes(CommandType.ERR_WRONG_DATA);
+                            } 
+                            else
+                            {
+                                //set the username
+                                this.user.setUsername(newUsername.getUsername());
+                                WriteBytes(CommandType.OK);
+                                this.out.writeBytes(null);
+                            }
+                        break;
                         case LOGOUT:
+                            this.user = null;
+                            this.Authentication();
+                        case EXIT://close the socket
                             socket.close();//close the socket on clientLogout
                         break;
                     default:

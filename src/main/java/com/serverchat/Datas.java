@@ -142,5 +142,11 @@ public class Datas {
         }
     }
 
+    //get user allown to chat
+    public boolean isAllownToChat(int chatId, int userID){
+        if(this.getChatByChatId(chatId).getUsersId().contains(userID))return true;
+        return false;
+    }
+
 
 }
