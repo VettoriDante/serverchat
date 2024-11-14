@@ -176,7 +176,7 @@ public class ClientHandler extends Thread {
                             else{
                                 if(datas.getChatByChatId(m.getChatId()).rmMessage(m.getId(), m.getSenderId())){
                                     WriteBytes(CommandType.OK);
-                                    WriteByteNull();
+                                    WriteBytes(new Gson().toJson(m.getId()+""));
                                 }
                                 else{
                                     WriteBytes(CommandType.ERR_NOT_FOUND);

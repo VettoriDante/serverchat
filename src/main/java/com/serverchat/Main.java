@@ -13,7 +13,8 @@ public class Main {
          * with their id and a list of all the user for that chat
          * so once the server know who is the client can easly 
          * know in which chat he is 
-         */         
+         */
+        
         do{
             Socket socketC = socket.accept();//accepting new connections
             new ClientHandler(socketC, datas).start();//passing required datas the the handler

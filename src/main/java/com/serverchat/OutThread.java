@@ -1,7 +1,6 @@
 package com.serverchat;
 
 import java.io.DataOutputStream;
-import java.io.IOException;
 
 public class OutThread extends Thread{
     private DataOutputStream out;

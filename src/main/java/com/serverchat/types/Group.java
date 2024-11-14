@@ -85,7 +85,7 @@ public class Group implements ChatInterface {
             return true;
         }
         else{
-            return true;
+            return false;
         }
     }
 
