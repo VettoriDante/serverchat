@@ -70,7 +70,8 @@ public class ClientHandler extends Thread {
                 inCommand = in.readLine();
                 command = CommandType.valueOf(inCommand); // cast like operation
                 String input = null; 
-// 
+
+                //execute every command 
                 switch (command) {
                     case SEND_MSG:
                     //sending a new message
@@ -157,7 +158,7 @@ public class ClientHandler extends Thread {
                             WriteBytes(new Gson().toJson(allUserChats));// send an array of JsonChat
                         case UPD_NAME:
                             JsonUser newUsername = new Gson().fromJson(in.readLine(), JsonUser.class);//read the new username
-                            if(newUsername == null ){
+                            if(newUsername == null || (!newUsername.getUsername().equals(this.user.getUsername()) && this.user.getPassword().equals(newUsername.getPassword()))){
                                 WriteBytes(CommandType.ERR_WRONG_DATA);
                             } 
                             else
@@ -193,6 +194,7 @@ public class ClientHandler extends Thread {
                         case EXIT://close the socket
                             datas.rmConnectedUser(this);
                             socket.close();//close the socket on clientLogout
+                            connectionUP = false;
                         break;
                     default:
                         WriteBytes(CommandType.ERR_WRONG_DATA);
