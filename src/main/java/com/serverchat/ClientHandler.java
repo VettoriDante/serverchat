@@ -142,7 +142,7 @@ public class ClientHandler extends Thread {
                                 }
                                 datas.addChatGroup(g); // add group to datas 
                                 WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
-                                this.WriteByteNull();
+                                this.WriteBytes(new Gson().toJson(g.getChatName() + "#" + g.getChatId()));
                             }                            
                             break;
                         case REQ_CHATS:
@@ -185,11 +185,13 @@ public class ClientHandler extends Thread {
                         break;
                         case LOGOUT:
                             this.user = null;
+                            datas.rmConnectedUser(this);
                             boolean auth = true;
                             do{
                                 auth = this.Authentication();
                             }while(auth);
                         case EXIT://close the socket
+                            datas.rmConnectedUser(this);
                             socket.close();//close the socket on clientLogout
                         break;
                     default:

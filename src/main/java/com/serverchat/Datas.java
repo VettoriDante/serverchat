@@ -29,6 +29,10 @@ public class Datas {
         allUsers.add(newUser);
     }
 
+    public synchronized void rmConnectedUser(ClientHandler connection){
+        this.connectedUsers.remove(connection);
+    }
+
     //return the whole user by his username
     public User getUserByName(String username){
         for(User u : allUsers){
@@ -95,7 +99,7 @@ public class Datas {
                 new OutThread (client.getOutputStream(), CommandType.NEW_GROUP.toString() ).start();
             }
             JsonChat toSend = new JsonChat(chat.getChatId(), chat.getChatName(), chat.getAllMessages());
-            new OutThread (client.getOutputStream(), new Gson().toJson(toSend)).start();//send data as a JsonChat OBJ
+            new OutThread (client.getOutputStream(), new Gson().toJson(toSend), 10).start();//send data as a JsonChat OBJ
             //which is the "standard" to send and recive chats
     }
 
@@ -144,7 +148,7 @@ public class Datas {
                 DataOutputStream out = client.getOutputStream();//get the outputStream of the client which will be sent data
                 //passing the output OBJ
                 new OutThread(out, CommandType.SEND_MSG.toString()).start();
-                new OutThread(out, new Gson().toJson(m)).start();
+                new OutThread(out, new Gson().toJson(m), 10).start();
             }
         }
     }
