@@ -23,6 +23,7 @@ public class ClientHandler extends Thread {
     private DataOutputStream out;
     private Socket socket;
     private Datas datas;
+    private boolean connectionUP;
 
     public ClientHandler(Socket socket, Datas datas) {
         this.socket = socket;
@@ -33,6 +34,7 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.connectionUP = true;
     }
 
     @Override
@@ -46,11 +48,13 @@ public class ClientHandler extends Thread {
             do {
                 /*
                  * the authentication method
-                 * return true whenever a error
+                 * return true whenever an error
                  * is found during the auth process
                  */
                 error = Authentication();
             } while (error);
+
+            if(!connectionUP) return;
 
             // Once you know who the user is, the server get ready to send him
             // all of his chats
@@ -61,7 +65,6 @@ public class ClientHandler extends Thread {
             // here the thread add himself to datas (connected)
             datas.addConnectedClient(user.getId(), this);
 
-            boolean connectionUP = true;
             String inCommand = null;
             CommandType command = null;
             do {
@@ -262,14 +265,17 @@ public class ClientHandler extends Thread {
                 case EXIT:
                     //what to do on exit
                     socket.close();
-                    this.interrupt();
+                    connectionUP = false;
+                    error = false;
                 break;
             default:
                 WriteBytes(CommandType.ERR_WRONG_DATA);
                 error = true;
                 break;
         }
-        this.WriteByteNull();
+        if(connectionUP){
+            this.WriteByteNull();
+        }
         return error; // return error
     }
 
