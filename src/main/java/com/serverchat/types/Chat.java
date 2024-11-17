@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import com.serverchat.protocol.Message;
 
 public class Chat implements ChatInterface{
-    private static int nextId = 0;
     private int messagesID;
     private int id;
     private User user1;
@@ -15,7 +14,7 @@ public class Chat implements ChatInterface{
     //constructor
     public Chat(User user1, User user2){
         this.messages = new ArrayList<>();
-        this.id = nextId++;
+        this.id = ChatIDs.getNextChatID();
         this.user1 = user1;
         this.user2 = user2;
         this.messagesID = 0;

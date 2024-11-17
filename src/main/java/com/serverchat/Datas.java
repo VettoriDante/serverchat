@@ -9,6 +9,7 @@ import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
 import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
+import com.serverchat.types.Group;
 import com.serverchat.types.User;
 import com.google.gson.*;
 
@@ -159,5 +160,16 @@ public class Datas {
         return false;
     }
 
+    public boolean isExitingPrivateChat(String username1, String username2){
+        User user1 = this.getUserByName(username1);
+        User user2 = this.getUserByName(username2);
+
+        for(ChatInterface c : this.chatsData){
+            if(c instanceof Chat && c.getUsersId().contains(user1) && c.getUsersId().contains(user2)){
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

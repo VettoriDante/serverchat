@@ -86,8 +86,7 @@ public class ClientHandler extends Thread {
                         m.setSenderId(this.user.getId());
                         if(datas.addNewMsg(m)){
                             WriteBytes(CommandType.OK);
-                            WriteBytes(m.getId()+"");//send the messageIdBack (the castToString is not fun)
-                            this.WriteByteNull();
+                            WriteBytes(new Gson().toJson(m));//send the whole message back with all datas updated
                         }
                         else
                         {
@@ -116,12 +115,19 @@ public class ClientHandler extends Thread {
                         //will be sent only the username of the other "component" and use this.user to create the chat
                         User t = datas.getUserByName(input);
                         Chat c = null;
-                        if(t == null){this.WriteBytes(CommandType.ERR_NOT_FOUND);}
+                        if(t == null ){this.WriteBytes(CommandType.ERR_NOT_FOUND);}
                         else{
-                            c = new Chat(this.user, t);
-                            datas.addChatGroup(c);
-                            WriteBytes(CommandType.OK);
-                            this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
+                            if(
+                                datas.isExitingPrivateChat(this.user.getUsername(), input) // if this chat already exist
+                            ){
+                                WriteBytes(CommandType.ERR_CHAT_EXISTS); //return the error
+                            }
+                            else{
+                                c = new Chat(this.user, t);
+                                datas.addChatGroup(c);
+                                WriteBytes(CommandType.OK);
+                                this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
+                            }
                         }
                         break;
                         case NEW_GROUP:
@@ -210,7 +216,6 @@ public class ClientHandler extends Thread {
                         WriteBytes(CommandType.ERR_WRONG_DATA);
                         break;
                 }
-                // here will go every operation
             } while (connectionUP);
         } catch (IOException e) {
             e.printStackTrace();
@@ -237,12 +242,13 @@ public class ClientHandler extends Thread {
                 } else {
                     if (datas.isExitingName(newUserJ.getUsername())) {
                         WriteBytes(CommandType.ERR_USER_EXISTS);
+                    }else{
+                        User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
+                        datas.newUser(newUser);// add the new user to the general array of datas
+                        user = newUser; // set this.user
+                        WriteBytes(CommandType.OK); // send the ok
+                        System.out.println("new user has been created username: " + user.getUsername());
                     }
-                    User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
-                    datas.newUser(newUser);// add the new user to the general array of datas
-                    user = newUser; // set this.user
-                    WriteBytes(CommandType.OK); // send the ok
-                    System.out.println("new user has been created username: " + user.getUsername());
                 }
                 break;
             case OLD_USER:
