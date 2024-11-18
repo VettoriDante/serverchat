@@ -197,6 +197,16 @@ public class ClientHandler extends Thread {
                                 }
                             }
                         break;
+                        case UPD_MSG:
+                            Message messageToMod = new Gson().fromJson(in.readLine(), Message.class);
+                            if(messageToMod == null){
+                                WriteBytes(CommandType.ERR_WRONG_DATA);
+                            }
+                            else{
+                                //update message
+                                
+                            }
+                            break;
                         case LOGOUT:
                             this.user = null;
                             datas.rmConnectedUser(this);
@@ -258,6 +268,7 @@ public class ClientHandler extends Thread {
                 if (tmp == null) {
                     if (datas.isExitingName(searchFor.getUsername())) {
                         WriteBytes(CommandType.ERR_NOT_FOUND);
+                        error = true;
                     } else {
                         WriteBytes(CommandType.ERR_WRONG_DATA);
                     }

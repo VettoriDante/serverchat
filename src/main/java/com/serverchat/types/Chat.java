@@ -59,12 +59,21 @@ public class Chat implements ChatInterface{
         return message.getId();
     }
 
-    @Override
-    public boolean rmMessage(int messageId, int userID) {
+    //if return null there is no message with that ID
+    //and if the user has sent that message
+    private Message getMessageByID(int messageId, int userID){
         Message m = null;
         for(Message i : messages){
             if(i.getId() == messageId) m = i;
         }
+        if(m == null) return null;
+        if(m.getSenderId() != userID) return null;//double if to avoid errors
+        return m ;
+    } 
+
+    @Override
+    public boolean rmMessage(int messageId, int userID) {
+        Message m = this.getMessageByID(messageId , userID);
         if(m == null) return false;
         if(m.getSenderId() == userID){
             messages.remove(m);
@@ -76,7 +85,14 @@ public class Chat implements ChatInterface{
     }
 
    
-
+    @Override
+    public boolean modMsg(Message message) {
+        Message m = this.getMessageByID(message.getId(), message.getSenderId());
+        if(m == null) return false;
+        
+        m.setContent(message.getContent());
+        return true;
+    }
 
     
 }

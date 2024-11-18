@@ -14,6 +14,7 @@ public interface ChatInterface {
     public ArrayList<Message> getAllMessages();
     public int addNewMsg(Message message);
     public boolean rmMessage(int messageId, int userID);
+    public boolean modMsg(Message message);
 }
 
 

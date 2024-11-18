@@ -74,10 +74,7 @@ public class Group implements ChatInterface {
 
     @Override
     public boolean rmMessage(int messageId, int userID) {
-        Message m = null;
-        for(Message i : messages){
-            if(i.getId() == messageId) m = i;
-        }
+        Message m = this.getMessageByID(messageId, userID);
         if(m == null) return false;
         if(m.getSenderId() == userID){
             messages.remove(m);
@@ -86,6 +83,25 @@ public class Group implements ChatInterface {
         else{
             return false;
         }
+    }
+
+    private Message getMessageByID(int messageId, int userID){
+        Message m = null;
+        for(Message i : messages){
+            if(i.getId() == messageId) m = i;
+        }
+        if(m == null) return null;
+        if(m.getSenderId() != userID) return null;//double if to avoid errors
+        return m ;
+    } 
+
+    @Override
+    public boolean modMsg(Message message) {
+        Message m = this.getMessageByID(message.getId(), message.getSenderId());
+        if(m == null) return false;
+        
+        m.setContent(message.getContent());
+        return true;
     }
   
 

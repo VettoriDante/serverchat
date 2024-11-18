@@ -160,6 +160,7 @@ public class Datas {
         return false;
     }
 
+    //check a private chat between 2 users
     public boolean isExitingPrivateChat(String username1, String username2){
         User user1 = this.getUserByName(username1);
         User user2 = this.getUserByName(username2);
