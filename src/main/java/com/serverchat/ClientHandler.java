@@ -49,24 +49,32 @@ public class ClientHandler extends Thread {
                 error = Authentication();
             } while (error);
 
-            if(!connectionUP) return;
-
-            // Once you know who the user is, the server get ready to send him
-            // all of his chats
-            WriteBytes(CommandType.INIT);
-            ArrayList<ChatInterface> chats = datas.getChatsByUserId(this.user.getId());
-            WriteBytes(this.getChatsToSend(chats));
-
-            // here the thread add himself to datas (connected)
-            datas.addConnectedClient(user.getId(), this);
-
             String inCommand = null;
             CommandType command = null;
+            boolean auth = true;
+            String input = null; 
+
+
             do {
-                // read and cast the new command
-                inCommand = in.readLine();
-                command = CommandType.valueOf(inCommand); // cast like operation
-                String input = null; 
+
+                if(auth){
+                    if(!connectionUP) return;
+
+                    // Once you know who the user is, the server get ready to send him
+                    // all of his chats
+                    WriteBytes(CommandType.INIT);
+                    ArrayList<ChatInterface> chats = datas.getChatsByUserId(this.user.getId());
+                    WriteBytes(this.getChatsToSend(chats));
+        
+                    // here the thread add himself to datas (connected)
+                    datas.addConnectedClient(user.getId(), this);
+        
+                    // read and cast the new command
+                    inCommand = in.readLine();
+                    command = CommandType.valueOf(inCommand); // cast like operation
+                    auth = false;
+                }
+
 
                 //execute every command 
                 switch (command) {
@@ -119,6 +127,7 @@ public class ClientHandler extends Thread {
                             }
                             else{
                                 c = new Chat(this.user, t);
+                                System.out.println("new chat: " + c.getChatName());
                                 datas.addChatGroup(c);
                                 WriteBytes(CommandType.OK);
                                 this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
@@ -147,6 +156,7 @@ public class ClientHandler extends Thread {
                                 datas.addChatGroup(g); // add group to datas 
                                 WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
                                 this.WriteBytes(g.getChatName() + "#" + g.getChatId());
+                                System.out.println("new group: "+ g.getChatName());
                             }                            
                             break;
                         case REQ_CHATS:
@@ -174,6 +184,7 @@ public class ClientHandler extends Thread {
                                     this.user.setUsername(newUsername.getUsername());
                                     WriteBytes(CommandType.OK);
                                     this.WriteByteNull();
+                                    System.out.println("username changed: " + newUsername.getUsername());
                                 }
                             }
                         break;
@@ -210,26 +221,24 @@ public class ClientHandler extends Thread {
                                 }
                             }
                             break;
+                        case DEL_USER:
+                            JsonUser deleteUser = new Gson().fromJson(in.readLine(), JsonUser.class);
+                            if(datas.isExitingName(deleteUser.getUsername()))
+                            //TODO delete user
+                        break;
                         case LOGOUT:
                             System.out.println(this.user.getUsername() + " has disconnected");
                             this.user = null;
                             datas.rmConnectedUser(this);
                             WriteBytes(CommandType.OK);
-                            boolean auth = true;
+                            auth = true;
                             do{
                                 auth = this.Authentication();
                             }while(auth);
-
-                            if(!connectionUP) return;
-                            // Once you know who the user is, the server get ready to send him
-                            // all of his chats
-                            WriteBytes(CommandType.INIT);
-                            chats = datas.getChatsByUserId(this.user.getId());
-                            WriteBytes(this.getChatsToSend(chats));
                         break;
                         case EXIT://close the socket
                             datas.rmConnectedUser(this);
-                            System.out.println(this.user.getUsername() + " has disconnected");
+                            System.out.println(this.user.getUsername() + " has closed his client");
                             socket.close();//close the socket on clientLogout
                             connectionUP = false;
                         break;
