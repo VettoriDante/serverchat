@@ -216,14 +216,22 @@ public class ClientHandler extends Thread {
                             }
                             break;
                         case LOGOUT:
+                            System.out.println(this.user.getUsername() + " has disconnected");
                             this.user = null;
                             datas.rmConnectedUser(this);
                             WriteBytes(CommandType.OK);
-                            System.out.println(this.user.getUsername() + " has disconnected");
                             boolean auth = true;
                             do{
                                 auth = this.Authentication();
                             }while(auth);
+
+                            if(!connectionUP) return;
+                            // Once you know who the user is, the server get ready to send him
+                            // all of his chats
+                            WriteBytes(CommandType.INIT);
+                            chats = datas.getChatsByUserId(this.user.getId());
+                            WriteBytes(this.getJSONToSend(chats));
+                        break;
                         case EXIT://close the socket
                             datas.rmConnectedUser(this);
                             System.out.println(this.user.getUsername() + " has disconnected");
@@ -316,8 +324,8 @@ public class ClientHandler extends Thread {
 
 
     // method for send a string , with before the implementation of "\n"
-    private void WriteBytes(String stringtosout) throws IOException {
-        out.writeBytes(stringtosout + "\n");
+    private void WriteBytes(Object writeOut) throws IOException {
+        out.writeBytes(new Gson().toJson(writeOut) + "\n");
     }
 
     private void WriteBytes(CommandType commandToSout) throws IOException {
