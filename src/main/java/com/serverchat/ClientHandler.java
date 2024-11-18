@@ -1,5 +1,6 @@
 package com.serverchat;
-
+import com.serverchat.types.*;
+import com.serverchat.protocol.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,15 +8,9 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.google.gson.*;
-import com.serverchat.protocol.JsonChat;
-import com.serverchat.protocol.JsonGroup;
-import com.serverchat.protocol.CommandType;
-import com.serverchat.protocol.JsonUser;
-import com.serverchat.protocol.Message;
-import com.serverchat.types.Chat;
-import com.serverchat.types.ChatInterface;
-import com.serverchat.types.Group;
-import com.serverchat.types.User;
+
+
+
 
 public class ClientHandler extends Thread {
     private User user;
@@ -60,7 +55,7 @@ public class ClientHandler extends Thread {
             // all of his chats
             WriteBytes(CommandType.INIT);
             ArrayList<ChatInterface> chats = datas.getChatsByUserId(this.user.getId());
-            WriteBytes(this.getJSONToSend(chats));
+            WriteBytes(this.getChatsToSend(chats));
 
             // here the thread add himself to datas (connected)
             datas.addConnectedClient(user.getId(), this);
@@ -86,7 +81,7 @@ public class ClientHandler extends Thread {
                         m.setSenderId(this.user.getId());
                         if(datas.addNewMsg(m)){
                             WriteBytes(CommandType.OK);
-                            WriteBytes(new Gson().toJson(m));//send the whole message back with all datas updated
+                            WriteBytes(m);//send the whole message back with all datas updated
                         }
                         else
                         {
@@ -126,7 +121,7 @@ public class ClientHandler extends Thread {
                                 c = new Chat(this.user, t);
                                 datas.addChatGroup(c);
                                 WriteBytes(CommandType.OK);
-                                this.WriteBytes(new Gson().toJson(c.getChatName() + "#" + c.getChatId()));//send chatName and ChatID
+                                this.WriteBytes(c.getChatName() + "#" + c.getChatId());//send chatName and ChatID
                             }
                         }
                         break;
@@ -151,7 +146,7 @@ public class ClientHandler extends Thread {
                                 }
                                 datas.addChatGroup(g); // add group to datas 
                                 WriteBytes(CommandType.OK); // send datas to client via WriteBytes 
-                                this.WriteBytes(new Gson().toJson(g.getChatName() + "#" + g.getChatId()));
+                                this.WriteBytes(g.getChatName() + "#" + g.getChatId());
                             }                            
                             break;
                         case REQ_CHATS:
@@ -163,7 +158,7 @@ public class ClientHandler extends Thread {
                                 chatsToSend.add(new JsonChat(chat.getChatId(), chat.getChatName(), chat.getAllMessages()));
                             }
                             WriteBytes(CommandType.OK);//send the OK
-                            WriteBytes(new Gson().toJson(allUserChats));// send an array of JsonChat
+                            WriteBytes(allUserChats);// send an array of JsonChat
                         case UPD_NAME:
                             JsonUser newUsername = new Gson().fromJson(in.readLine(), JsonUser.class);//read the new username
                             if(newUsername == null || newUsername.getUsername().equals(this.user.getUsername())){
@@ -191,7 +186,7 @@ public class ClientHandler extends Thread {
                                 m.setSenderId(datas.getUserByName(m.getSenderName()).getId());
                                 if(datas.rmMessage(m, this.getUserId())){
                                     WriteBytes(CommandType.OK);
-                                    WriteBytes(new Gson().toJson(m));
+                                    WriteBytes(m);
                                 }
                                 else{
                                     WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -208,7 +203,7 @@ public class ClientHandler extends Thread {
                                 messageToMod.setSenderId(datas.getUserByName(messageToMod.getSenderName()).getId());
                                 if(datas.modMsg(messageToMod, this.getUserId())){
                                     WriteBytes(CommandType.OK);
-                                    WriteBytes(new Gson().toJson(messageToMod));
+                                    WriteBytes(messageToMod);
                                 }
                                 else{
                                     WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -230,7 +225,7 @@ public class ClientHandler extends Thread {
                             // all of his chats
                             WriteBytes(CommandType.INIT);
                             chats = datas.getChatsByUserId(this.user.getId());
-                            WriteBytes(this.getJSONToSend(chats));
+                            WriteBytes(this.getChatsToSend(chats));
                         break;
                         case EXIT://close the socket
                             datas.rmConnectedUser(this);
@@ -337,13 +332,13 @@ public class ClientHandler extends Thread {
     }
 
     // return an array the Gson of ChatToSend and require an array of ChatInterface
-    private String getJSONToSend(ArrayList<ChatInterface> chats) {
-        ArrayList<JsonChat> toJson = new ArrayList<>();
+    private ArrayList<JsonChat> getChatsToSend(ArrayList<ChatInterface> chats) {
+        ArrayList<JsonChat> arJsonChat = new ArrayList<>();
         for (ChatInterface i : chats) {
-            toJson.add(new JsonChat(i.getChatId(), i.getChatName(), i.getAllMessages()));
+            arJsonChat.add(new JsonChat(i.getChatId(), i.getChatName(), i.getAllMessages()));
         }
 
-        return new Gson().toJson(toJson);
+        return arJsonChat;
     }
 
 }
