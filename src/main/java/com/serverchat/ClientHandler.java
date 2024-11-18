@@ -188,9 +188,10 @@ public class ClientHandler extends Thread {
                                 WriteBytes(CommandType.ERR_WRONG_DATA);
                             }
                             else{
-                                if(datas.getChatByChatId(m.getChatId()).rmMessage(m.getId(), m.getSenderId())){
+                                m.setSenderId(datas.getUserByName(m.getSenderName()).getId());
+                                if(datas.rmMessage(m, this.getUserId())){
                                     WriteBytes(CommandType.OK);
-                                    WriteBytes(new Gson().toJson(m.getId()+""));
+                                    WriteBytes(new Gson().toJson(new Gson().toJson(m)));
                                 }
                                 else{
                                     WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -252,6 +253,7 @@ public class ClientHandler extends Thread {
                 } else {
                     if (datas.isExitingName(newUserJ.getUsername())) {
                         WriteBytes(CommandType.ERR_USER_EXISTS);
+                        error = true;
                     }else{
                         User newUser = new User(newUserJ.getUsername(), newUserJ.getPassword());
                         datas.newUser(newUser);// add the new user to the general array of datas
@@ -268,7 +270,6 @@ public class ClientHandler extends Thread {
                 if (tmp == null) {
                     if (datas.isExitingName(searchFor.getUsername())) {
                         WriteBytes(CommandType.ERR_NOT_FOUND);
-                        error = true;
                     } else {
                         WriteBytes(CommandType.ERR_WRONG_DATA);
                     }

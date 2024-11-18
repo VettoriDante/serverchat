@@ -84,13 +84,13 @@ public class Datas {
         for(ClientHandler i : this.connectedUsers){
             if(toAdd.getUsersId().contains(i.getUserId()) && i.getUserId() != toAdd.getUsersId().get(0)){
                 //if the user is into the chat && is ConnectedNow
-                sendNotifications(i, (toAdd instanceof Chat), toAdd);
+                sendNotificationsCreatedChat(i, (toAdd instanceof Chat), toAdd);
             }
         }
     }
 
     //send notification every time a chat is created
-    private synchronized void sendNotifications(ClientHandler client , boolean isChat , ChatInterface chat){
+    private synchronized void sendNotificationsCreatedChat(ClientHandler client , boolean isChat , ChatInterface chat){
             //advise the user of the new incoming chat
             if(isChat){
                 new OutThread (client.getOutputStream(), CommandType.NEW_CHAT.toString() ).start();
@@ -166,11 +166,33 @@ public class Datas {
         User user2 = this.getUserByName(username2);
 
         for(ChatInterface c : this.chatsData){
-            if(c instanceof Chat && c.getUsersId().contains(user1) && c.getUsersId().contains(user2)){
+            if(c instanceof Chat && c.getUsersId().contains(user1.getId()) && c.getUsersId().contains(user2.getId())){
                 return true;
             }
         }
         return false;
+    }
+
+    public synchronized boolean rmMessage(Message message,int userID ){
+        ChatInterface c = null;
+        for(ChatInterface chat : this.chatsData){
+            if(chat.getChatId() == message.getChatId()){
+                c = chat;
+            }
+        }
+        if(c == null) return false;
+        if(c.rmMessage(message.getId(), userID)){
+            //for true removed
+            for(ClientHandler client : this.connectedUsers){
+                if(c.getUsersId().contains(client.getUserId()) && client.getUserId() != message.getSenderId()){
+                    new OutThread(client.getOutputStream(), CommandType.RM_MSG.toString()).start();
+                    new OutThread(client.getOutputStream(), new Gson().toJson(message), 10).start();
+                }
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }

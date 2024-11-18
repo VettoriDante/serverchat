@@ -75,13 +75,8 @@ public class Chat implements ChatInterface{
     public boolean rmMessage(int messageId, int userID) {
         Message m = this.getMessageByID(messageId , userID);
         if(m == null) return false;
-        if(m.getSenderId() == userID){
             messages.remove(m);
-            return true;
-        }
-        else{
-            return false;
-        }
+        return true;
     }
 
    
