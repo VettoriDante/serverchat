@@ -57,8 +57,12 @@ public class ClientHandler extends Thread {
 
             do {
 
-                if(auth){
+                if(!auth){
                     if(!connectionUP) return;
+                    inCommand = null;
+                    command = null;
+                    auth = true;
+                    input = null; 
 
                     // Once you know who the user is, the server get ready to send him
                     // all of his chats
@@ -67,14 +71,15 @@ public class ClientHandler extends Thread {
                     WriteBytes(this.getChatsToSend(chats));
         
                     // here the thread add himself to datas (connected)
+
                     datas.addConnectedClient(user.getId(), this);
-        
-                    // read and cast the new command
-                    inCommand = in.readLine();
-                    command = CommandType.valueOf(inCommand); // cast like operation
-                    auth = false;
+                    
                 }
 
+                // read and cast the new command
+                inCommand = in.readLine();
+                command = CommandType.valueOf(inCommand); // cast like operation
+                auth = false;
 
                 //execute every command 
                 switch (command) {
@@ -287,16 +292,18 @@ public class ClientHandler extends Thread {
                 User tmp = datas.getUser(searchFor.getUsername(), searchFor.getPassword());
                 // check if the user was successfully found
                 if (tmp == null) {
-                    if (datas.isExitingName(searchFor.getUsername())) {
-                        WriteBytes(CommandType.ERR_NOT_FOUND);
-                    } else {
-                        WriteBytes(CommandType.ERR_WRONG_DATA);
-                    }
+                    WriteBytes(CommandType.ERR_WRONG_DATA);
                     error = true;
                 } else {
-                    WriteBytes(CommandType.OK);
-                    user = tmp;
-                    System.out.println(user.getUsername() + " has connected again :)");
+                    if(datas.isExistingConnection(tmp)){
+                        WriteBytes(CommandType.ERR_GEN);
+                        error = true;
+                    }
+                    else{
+                        user = tmp;
+                        WriteBytes(CommandType.OK);
+                        System.out.println(user.getUsername() + " has connected again :)");
+                    }
                 }
                 break;
                 case EXIT:
@@ -334,6 +341,7 @@ public class ClientHandler extends Thread {
 
     private void WriteBytes(CommandType commandToSout) throws IOException {
         out.writeBytes(commandToSout.toString() + "\n");
+        System.out.println(commandToSout.toString());
     }
 
     private void WriteByteNull() throws IOException{

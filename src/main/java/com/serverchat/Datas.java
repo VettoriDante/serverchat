@@ -203,7 +203,7 @@ public class Datas {
             }
         }
         if(c == null) return false;
-        if(modMsg(message, userID)){
+        if(c.modMsg(message, userID)){
             //for true modified
             for(ClientHandler client : this.connectedUsers){
                 if(c.getUsersId().contains(client.getUserId()) && client.getUserId() != message.getSenderId()){
@@ -215,6 +215,15 @@ public class Datas {
         }else{
             return false;
         }
+    }
+
+    //check if there is an instance of ClientHandler for that user
+    public synchronized boolean isExistingConnection(User user){
+        for(ClientHandler client : this.connectedUsers){
+            if(client.getUserId() == user.getId())
+                return true;
+        }
+        return false;
     }
 
 }
