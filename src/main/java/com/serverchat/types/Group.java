@@ -93,8 +93,8 @@ public class Group implements ChatInterface {
     } 
 
     @Override
-    public boolean modMsg(Message message) {
-        Message m = this.getMessageByID(message.getId(), message.getSenderId());
+    public boolean modMsg(Message message, int userID) {
+        Message m = this.getMessageByID(message.getId(), userID);
         if(m == null) return false;
         
         m.setContent(message.getContent());

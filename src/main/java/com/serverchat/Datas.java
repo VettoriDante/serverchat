@@ -195,4 +195,26 @@ public class Datas {
         }
     }
 
+    public synchronized boolean modMsg(Message message, int userID){
+        ChatInterface c = null;
+        for(ChatInterface chat : this.chatsData){
+            if(chat.getChatId() == message.getChatId()){
+                c = chat;
+            }
+        }
+        if(c == null) return false;
+        if(modMsg(message, userID)){
+            //for true modified
+            for(ClientHandler client : this.connectedUsers){
+                if(c.getUsersId().contains(client.getUserId()) && client.getUserId() != message.getSenderId()){
+                    new OutThread(client.getOutputStream(), CommandType.UPD_MSG.toString()).start();
+                    new OutThread(client.getOutputStream(), new Gson().toJson(message), 10).start();
+                }
+            }
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }

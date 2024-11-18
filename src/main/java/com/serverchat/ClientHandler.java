@@ -191,7 +191,7 @@ public class ClientHandler extends Thread {
                                 m.setSenderId(datas.getUserByName(m.getSenderName()).getId());
                                 if(datas.rmMessage(m, this.getUserId())){
                                     WriteBytes(CommandType.OK);
-                                    WriteBytes(new Gson().toJson(new Gson().toJson(m)));
+                                    WriteBytes(new Gson().toJson(m));
                                 }
                                 else{
                                     WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -205,7 +205,14 @@ public class ClientHandler extends Thread {
                             }
                             else{
                                 //update message
-                                
+                                messageToMod.setSenderId(datas.getUserByName(messageToMod.getSenderName()).getId());
+                                if(datas.modMsg(messageToMod, this.getUserId())){
+                                    WriteBytes(CommandType.OK);
+                                    WriteBytes(new Gson().toJson(messageToMod));
+                                }
+                                else{
+                                    WriteBytes(CommandType.ERR_NOT_FOUND);
+                                }
                             }
                             break;
                         case LOGOUT:
