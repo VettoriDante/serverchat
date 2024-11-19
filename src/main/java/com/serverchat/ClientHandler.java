@@ -51,7 +51,7 @@ public class ClientHandler extends Thread {
 
             String inCommand = null;
             CommandType command = null;
-            boolean auth = true;
+            boolean auth = false;
             String input = null; 
 
 
@@ -79,7 +79,6 @@ public class ClientHandler extends Thread {
                 // read and cast the new command
                 inCommand = in.readLine();
                 command = CommandType.valueOf(inCommand); // cast like operation
-                auth = false;
 
                 //execute every command 
                 switch (command) {
@@ -227,19 +226,19 @@ public class ClientHandler extends Thread {
                             }
                             break;
                         case DEL_USER:
-                            JsonUser deleteUser = new Gson().fromJson(in.readLine(), JsonUser.class);
-                            if(datas.isExitingName(deleteUser.getUsername()))
-                            //TODO delete user
+                            JsonUser userToDelete = new Gson().fromJson(in.readLine(), JsonUser.class);
+                            if(datas.isExitingName(userToDelete.getUsername())){
+                                WriteBytes(CommandType.OK);
+                                WriteByteNull();
+                                auth = logout(auth);
+                                datas.deleteUser(this.user);
+                            }
+                            else{
+                                WriteBytes(CommandType.ERR_NOT_FOUND);
+                            }
                         break;
                         case LOGOUT:
-                            System.out.println(this.user.getUsername() + " has disconnected");
-                            this.user = null;
-                            datas.rmConnectedUser(this);
-                            WriteBytes(CommandType.OK);
-                            auth = true;
-                            do{
-                                auth = this.Authentication();
-                            }while(auth);
+                            auth = logout(auth);
                         break;
                         case EXIT://close the socket
                             datas.rmConnectedUser(this);
@@ -255,6 +254,18 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean logout(boolean auth) throws IOException{
+        System.out.println(this.user.getUsername() + " has disconnected");
+        datas.rmConnectedUser(this);
+        WriteBytes(CommandType.OK);
+        WriteByteNull();
+        auth = true;
+        do{
+            auth = this.Authentication();
+        }while(auth);
+        return auth;
     }
 
     // the method do de authentication and return a boolean error
@@ -295,7 +306,7 @@ public class ClientHandler extends Thread {
                     WriteBytes(CommandType.ERR_WRONG_DATA);
                     error = true;
                 } else {
-                    if(datas.isExistingConnection(tmp)){
+                    if(datas.isExistingConnection(tmp) || tmp.getUsername().equalsIgnoreCase(datas.getDeletedUserInfo().getUsername())){
                         WriteBytes(CommandType.ERR_GEN);
                         error = true;
                     }

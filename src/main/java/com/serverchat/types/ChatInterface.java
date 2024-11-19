@@ -15,6 +15,7 @@ public interface ChatInterface {
     public int addNewMsg(Message message);
     public boolean rmMessage(int messageId, int userID);
     public boolean modMsg(Message message, int userID);
+    public void rmUser(User user, User deletedUserInfo);
 }
 
 

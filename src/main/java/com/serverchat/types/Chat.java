@@ -89,5 +89,9 @@ public class Chat implements ChatInterface{
         return true;
     }
 
-    
+    @Override
+    public void rmUser(User user, User deletedUserInfo) {
+        if(user1.getId() == user.getId()){user1 = deletedUserInfo; return;}
+        if(user2.getId() == user.getId()){user2 = deletedUserInfo; return;}
+    }
 }

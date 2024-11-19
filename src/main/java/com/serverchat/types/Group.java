@@ -100,6 +100,15 @@ public class Group implements ChatInterface {
         m.setContent(message.getContent());
         return true;
     }
-  
+
+    @Override
+    public void rmUser(User user, User deletedUserInfo) {
+        for(User u : this.members){
+            if(u.getId() == user.getId()){
+                u = deletedUserInfo;
+                return;
+            }
+        }
+    }  
 
 }

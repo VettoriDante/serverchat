@@ -9,7 +9,6 @@ import com.serverchat.protocol.JsonUser;
 import com.serverchat.protocol.Message;
 import com.serverchat.types.Chat;
 import com.serverchat.types.ChatInterface;
-import com.serverchat.types.Group;
 import com.serverchat.types.User;
 import com.google.gson.*;
 
@@ -107,7 +106,7 @@ public class Datas {
     //when a user try to create a username if it's already user return true
     public synchronized boolean isExitingName(String name){
         for(User i : allUsers){
-            if(i.getUsername().equals(name)) return true;
+            if(i.getUsername().equalsIgnoreCase(name)) return true;
         }
         return false;
     }
@@ -224,6 +223,22 @@ public class Datas {
                 return true;
         }
         return false;
+    }
+
+    public synchronized boolean deleteUser(User userToDelete){
+        boolean ans = false;
+        for(ChatInterface chat : chatsData){
+            if(chat.getUsersId().contains(userToDelete.getId())){
+                chat.rmUser(userToDelete, getDeletedUserInfo());
+                ans = true;
+            }
+        }
+        this.allUsers.remove(userToDelete);
+        return ans;
+    }
+
+    public User getDeletedUserInfo(){
+        return this.allUsers.get(0);
     }
 
 }
