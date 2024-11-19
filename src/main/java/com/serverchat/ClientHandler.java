@@ -227,13 +227,11 @@ public class ClientHandler extends Thread {
                             break;
                         case DEL_USER:
                             JsonUser userToDelete = new Gson().fromJson(in.readLine(), JsonUser.class);
-                            if(datas.isExitingName(userToDelete.getUsername())){
+                            if(datas.isExitingName(userToDelete.getUsername()) && userToDelete.getPassword().equals(this.user.getPassword())){
                                 WriteBytes(CommandType.OK);
-                                WriteByteNull();
                                 datas.deleteUser(this.user);
                                 user = null;
                                 auth = logout(auth);
-                                auth = false;
                             }
                             else{
                                 WriteBytes(CommandType.ERR_NOT_FOUND);
