@@ -227,6 +227,7 @@ public class Datas {
 
     public synchronized boolean deleteUser(User userToDelete){
         boolean ans = false;
+        updateUserName(userToDelete, getDeletedUserInfo().getUsername());
         for(ChatInterface chat : chatsData){
             if(chat.getUsersId().contains(userToDelete.getId())){
                 chat.rmUser(userToDelete, getDeletedUserInfo());
@@ -239,6 +240,19 @@ public class Datas {
 
     public User getDeletedUserInfo(){
         return this.allUsers.get(0);
+    }
+
+    public synchronized void updateUserName(User user, String newUsername){
+        for(ChatInterface chat : chatsData){
+            if(chat.getUsersId().contains(user.getId())){
+                for(Message mod : chat.getAllMessages()){
+                    if(mod.getSenderId() == user.getId()){
+                        mod.setSenderName(newUsername);
+                    }
+                }
+            }
+        }
+        user.setUsername(newUsername);
     }
 
 }

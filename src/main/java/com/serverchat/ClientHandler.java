@@ -185,7 +185,7 @@ public class ClientHandler extends Thread {
                                 }
                                 else{
                                     //set the username
-                                    this.user.setUsername(newUsername.getUsername());
+                                    datas.updateUserName(this.user, newUsername.getUsername());
                                     WriteBytes(CommandType.OK);
                                     this.WriteByteNull();
                                     System.out.println("username changed: " + newUsername.getUsername());
@@ -227,11 +227,13 @@ public class ClientHandler extends Thread {
                             break;
                         case DEL_USER:
                             JsonUser userToDelete = new Gson().fromJson(in.readLine(), JsonUser.class);
-                            if(datas.isExitingName(userToDelete.getUsername())){
+                            if(!datas.isExitingName(userToDelete.getUsername())){
                                 WriteBytes(CommandType.OK);
                                 WriteByteNull();
-                                auth = logout(auth);
                                 datas.deleteUser(this.user);
+                                user = null;
+                                auth = logout(auth);
+                                auth = false;
                             }
                             else{
                                 WriteBytes(CommandType.ERR_NOT_FOUND);
@@ -257,7 +259,6 @@ public class ClientHandler extends Thread {
     }
 
     private boolean logout(boolean auth) throws IOException{
-        System.out.println(this.user.getUsername() + " has disconnected");
         datas.rmConnectedUser(this);
         WriteBytes(CommandType.OK);
         WriteByteNull();
