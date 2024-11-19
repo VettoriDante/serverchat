@@ -227,7 +227,6 @@ public class Datas {
 
     public synchronized boolean deleteUser(User userToDelete){
         boolean ans = false;
-        updateUserName(userToDelete, getDeletedUserInfo().getUsername());
         for(ChatInterface chat : chatsData){
             if(chat.getUsersId().contains(userToDelete.getId())){
                 chat.rmUser(userToDelete, getDeletedUserInfo());
@@ -235,6 +234,7 @@ public class Datas {
             }
         }
         this.allUsers.remove(userToDelete);
+        System.out.println("deleted user");
         return ans;
     }
 
