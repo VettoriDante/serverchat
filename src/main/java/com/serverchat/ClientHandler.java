@@ -142,7 +142,7 @@ public class ClientHandler extends Thread {
                         // get info to create new group 
                             JsonGroup newGroup = new Gson().fromJson(in.readLine(), JsonGroup.class); // try to cast check the group status
                             Group g = null;// create new group 
-                            if(newGroup == null){
+                            if(newGroup == null || newGroup.getGroupName().contains("-")){
                                 WriteBytes(CommandType.ERR_WRONG_DATA);
                             }
                             else{
@@ -281,7 +281,7 @@ public class ClientHandler extends Thread {
             case NEW_USER:
                 // for new user wait to be sent all user info
                 JsonUser newUserJ = new Gson().fromJson(inputs, JsonUser.class);// transform datas recived into a User
-                if (newUserJ == null) {
+                if (newUserJ == null || newUserJ.getUsername().contains("-")) {
                     WriteBytes(CommandType.ERR_WRONG_DATA);
                     error = true;
                 } else {
